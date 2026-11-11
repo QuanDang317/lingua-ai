@@ -6,74 +6,61 @@ import { usePathname } from "next/navigation";
 import {
   BarChart3,
   BookOpen,
-  BookText,
   BrainCircuit,
   Compass,
   GraduationCap,
   Headphones,
-  LayoutDashboard,
+  Home,
   Mic,
   PenTool,
-  Sparkles,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/context/app-context";
 
 const NAV_ITEMS = [
   {
-    label: "Main Dashboard",
-    labelVi: "Tổng quan năng lực",
+    label: "Tổng quan",
     href: "/",
-    icon: LayoutDashboard,
-    badge: "Live",
+    icon: Home,
   },
   {
-    label: "My Learning Path",
-    labelVi: "Lộ trình tuần tự",
+    label: "Lộ trình bài học",
     href: "/roadmap",
     icon: Compass,
-    badge: "Gated",
   },
   {
-    label: "Speaking with AI",
-    labelVi: "AI Voice Tutor",
+    label: "Luyện nói tương tác",
     href: "/speaking",
     icon: Mic,
-    badge: "Flagship",
   },
   {
-    label: "Listening Lab",
-    labelVi: "Luyện nghe thông minh",
+    label: "Luyện nghe",
     href: "/listening",
     icon: Headphones,
   },
   {
-    label: "Interactive Reading",
-    labelVi: "Đọc hiểu & Tách từ",
+    label: "Đọc hiểu",
     href: "/reading",
     icon: BookOpen,
   },
   {
-    label: "Writing & Hanzi",
-    labelVi: "Luyện viết & Nét chữ",
+    label: "Luyện viết",
     href: "/writing",
     icon: PenTool,
   },
   {
-    label: "Vocabulary (FSRS)",
-    labelVi: "Ôn tập ngắt quãng",
+    label: "Sổ từ vựng",
     href: "/vocabulary",
     icon: BrainCircuit,
   },
   {
-    label: "Exam Preparation",
-    labelVi: "TOEIC / IELTS / HSK",
+    label: "Luyện thi thử",
     href: "/exams",
     icon: GraduationCap,
   },
   {
-    label: "Progress & Memory",
-    labelVi: "Phân tích & Sổ lỗi",
+    label: "Tiến độ học",
     href: "/analytics",
     icon: BarChart3,
   },
@@ -81,60 +68,49 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { activeLanguage } = useApp();
+  const { activeLanguage, setIsSettingsOpen } = useApp();
 
   return (
-    <aside className="hidden w-72 flex-col border-r border-slate-200/80 bg-white px-4 py-5 md:flex">
+    <aside className="hidden w-64 shrink-0 flex-col border-r border-stone-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-5 md:flex">
       {/* Brand Header */}
       <Link
         href="/"
-        className="flex items-center gap-3 px-3 py-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-xl"
+        className="flex items-center gap-2.5 px-2 py-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-700 rounded-lg"
       >
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-sm">
-          <Sparkles className="h-5 w-5" />
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0F766E] text-white shadow-none">
+          <BookOpen className="h-5 w-5 text-white" />
         </div>
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-bold tracking-tight text-slate-900">
-              LinguaAI
-            </span>
-            <span className="rounded-md bg-indigo-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-indigo-600 ring-1 ring-inset ring-indigo-500/20">
-              v1.0
-            </span>
-          </div>
-          <p className="text-xs font-medium text-slate-500">
-            Adaptive Voice &amp; Exam Tutor
+        <div className="min-w-0 flex-1">
+          <span className="block text-base font-bold tracking-tight text-slate-900 dark:text-white leading-snug">
+            LinguaAI
+          </span>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-snug">
+            Học Song Ngữ Trung - Anh
           </p>
         </div>
       </Link>
 
-      {/* Active Track Pill */}
-      <div className="mt-5 rounded-2xl border border-slate-200/80 bg-slate-50/80 p-3">
-        <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
-          <span>NGÔN NGỮ ĐANG HỌC</span>
-          <BookText className="h-3.5 w-3.5 text-indigo-600" />
-        </div>
-        <div className="mt-1.5 flex items-center gap-2">
-          <span className="text-xl">
-            {activeLanguage === "zh" ? "🇨🇳" : "🇬🇧"}
+      {/* Active Language Chip */}
+      <div className="mt-4 px-3 py-2 rounded-lg bg-stone-50/90 dark:bg-slate-900 border border-stone-200/80 dark:border-slate-800">
+        <div className="flex items-center gap-2.5">
+          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 shrink-0">
+            {activeLanguage === "zh" ? "CN" : "GB"}
           </span>
-          <div>
-            <p className="text-sm font-bold text-slate-900">
-              {activeLanguage === "zh"
-                ? "Chinese Mandarin"
-                : "English Mastery"}
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold text-slate-900 dark:text-slate-200 leading-snug">
+              {activeLanguage === "zh" ? "Tiếng Trung Mandarin" : "Tiếng Anh Toàn Diện"}
             </p>
-            <p className="text-[11px] font-medium text-slate-500">
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-none mt-0.5">
               {activeLanguage === "zh"
-                ? "Pinyin • HSK 3.0 (1–9) & HSK 2.0"
-                : "CEFR A1–C2 • IELTS • TOEIC"}
+                ? "HSK 1-6 & Giao tiếp"
+                : "IELTS • TOEIC • CEFR"}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Navigation Links */}
-      <nav className="mt-5 flex-1 space-y-1 overflow-y-auto pr-1">
+      {/* Navigation Links - Flat Vertical Menu */}
+      <nav className="mt-4 flex-1 space-y-1 overflow-y-auto pr-0.5">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive =
@@ -147,62 +123,40 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "group flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
+                "group relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs leading-snug transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-700",
                 isActive
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900"
+                  ? "bg-[#CCFBF1]/70 dark:bg-teal-950/40 text-[#0F766E] dark:text-teal-300 font-bold border-l-2 border-[#0F766E] rounded-l-none pl-2.5"
+                  : "text-slate-700 dark:text-slate-400 hover:bg-stone-100/80 dark:hover:bg-slate-900/60 hover:text-slate-900 dark:hover:text-white font-medium"
               )}
             >
-              <div className="flex items-center gap-3">
-                <Icon
-                  className={cn(
-                    "h-4 w-4 transition-colors",
-                    isActive
-                      ? "text-white"
-                      : "text-slate-400 group-hover:text-indigo-600"
-                  )}
-                />
-                <div>
-                  <div className="leading-none">{item.label}</div>
-                  <div
-                    className={cn(
-                      "mt-1 text-[11px]",
-                      isActive ? "text-indigo-100" : "text-slate-400"
-                    )}
-                  >
-                    {item.labelVi}
-                  </div>
-                </div>
-              </div>
-              {item.badge && (
-                <span
-                  className={cn(
-                    "rounded-full px-2 py-0.5 text-[10px] font-semibold",
-                    isActive
-                      ? "bg-white/20 text-white"
-                      : "bg-indigo-50 text-indigo-600"
-                  )}
-                >
-                  {item.badge}
-                </span>
-              )}
+              <Icon
+                className={cn(
+                  "h-4 w-4 shrink-0 transition-colors",
+                  isActive
+                    ? "text-[#0F766E] dark:text-teal-400"
+                    : "text-slate-500 group-hover:text-slate-800 dark:group-hover:text-slate-300"
+                )}
+              />
+              <span className="leading-snug">{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* Architecture Status Footer */}
-      <div className="mt-4 rounded-xl border border-emerald-200/70 bg-emerald-50/60 p-3">
-        <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-xs font-semibold text-emerald-900">
-            AI Provider Layer: Active
-          </span>
+      {/* Settings & Appearance Action */}
+      <button
+        type="button"
+        onClick={() => setIsSettingsOpen(true)}
+        className="mt-3 flex items-center justify-between gap-2 rounded-lg border border-[#CBD5E1] dark:border-slate-800 bg-[#F8FAFC] dark:bg-slate-900/60 px-3 py-2.5 text-xs leading-snug font-semibold text-slate-800 dark:text-slate-300 hover:border-[#0F766E] hover:bg-stone-100 dark:hover:bg-slate-800 transition shadow-none"
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <Settings className="h-4 w-4 shrink-0 text-[#0F766E] dark:text-teal-400" />
+          <span className="leading-snug">Cài đặt & Giao diện</span>
         </div>
-        <p className="mt-1 text-[11px] leading-relaxed text-emerald-700">
-          Gatekeeper &ge; 80% • Active Mistake Memory • FSRS Scheduler
-        </p>
-      </div>
+        <span className="rounded px-1.5 py-0.5 text-[10px] font-bold bg-[#CCFBF1] dark:bg-slate-800 text-[#0F766E] dark:text-slate-400 border border-[#14B8A6]/40 dark:border-slate-700 shrink-0">
+          Sáng/Tối
+        </span>
+      </button>
     </aside>
   );
 }

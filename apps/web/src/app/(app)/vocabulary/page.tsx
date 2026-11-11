@@ -18,6 +18,8 @@ import {
   FSRSDeckOverviewResponse,
   SubmitFSRSReviewResponse,
 } from "@/types";
+import { speakNativeAudio } from "@/lib/utils";
+import { IpaBadge } from "@/components/IpaBadge";
 
 export default function FSRSVocabularyPage() {
   const { activeLanguage, refreshUser } = useApp();
@@ -49,12 +51,7 @@ export default function FSRSVocabularyPage() {
   }, [activeLanguage]);
 
   const speakText = (text: string) => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = activeLanguage === "zh" ? "zh-CN" : "en-US";
-    utter.rate = 0.95;
-    window.speechSynthesis.speak(utter);
+    speakNativeAudio(text, activeLanguage);
   };
 
   const activeCard: FSRSCardItem | null =
@@ -91,40 +88,42 @@ export default function FSRSVocabularyPage() {
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
       {/* Header Banner */}
-      <div className="rounded-2xl bg-gradient-to-r from-sky-950/90 via-slate-900 to-slate-900 border border-sky-500/30 p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 shadow-sm">
         <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/15 border border-sky-400/30 text-sky-300 text-xs font-semibold">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-600 dark:text-sky-400 text-xs font-semibold">
             <Brain className="w-3.5 h-3.5" />
-            FSRS v4.5 SPACED REPETITION ENGINE • DSR FORGETTING CURVE SCHEDULER
+            Ghi nhớ ngắt quãng thông minh
           </div>
-          <h1 className="text-2xl font-bold text-white">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
             {activeLanguage === "zh"
-              ? "Kho Từ Vựng & Flashcard FSRS Tiếng Trung (HSK 3.0 & HSK 2.0)"
-              : "Kho Từ Vựng & Flashcard FSRS Tiếng Anh (CEFR, IELTS & TOEIC)"}
+              ? "Sổ từ vựng & Flashcard Tiếng Trung"
+              : "Sổ từ vựng & Flashcard Tiếng Anh"}
           </h1>
-          <p className="text-sm text-slate-300">
-            Thuật toán FSRS v4.5 tính toán chính xác 3 biến số bộ nhớ: Độ ổn định (Stability S), Độ khó (Difficulty D) và Khả năng truy xuất (Retrievability R%).
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-2xl">
+            {activeLanguage === "zh"
+              ? "Hệ thống tự động nhắc nhở ôn tập đúng thời điểm giúp bạn ghi nhớ chữ Hán, Pinyin và phát âm sâu vào trí nhớ dài hạn."
+              : "Ôn tập từ vựng chuẩn Cambridge/Oxford theo chu kỳ ghi nhớ khoa học, tối ưu thời gian học mỗi ngày."}
           </p>
         </div>
 
         {/* Summary Metrics */}
         {deck && (
-          <div className="grid grid-cols-3 gap-3">
-            <div className="px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-center">
-              <div className="text-xs text-slate-400">Cần ôn hôm nay</div>
-              <div className="text-xl font-extrabold text-amber-400">
+          <div className="grid grid-cols-3 gap-2.5 sm:gap-3 shrink-0">
+            <div className="px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-center">
+              <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Cần ôn hôm nay</div>
+              <div className="text-lg sm:text-xl font-extrabold text-amber-500">
                 {deck.due_now_count}
               </div>
             </div>
-            <div className="px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-center">
-              <div className="text-xs text-slate-400">Tổng số thẻ</div>
-              <div className="text-xl font-extrabold text-white">
+            <div className="px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-center">
+              <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Tổng số thẻ</div>
+              <div className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">
                 {deck.total_cards}
               </div>
             </div>
-            <div className="px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-center">
-              <div className="text-xs text-slate-400">Retention TB</div>
-              <div className="text-xl font-extrabold text-emerald-400">
+            <div className="px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-center">
+              <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Độ nhớ TB</div>
+              <div className="text-lg sm:text-xl font-extrabold text-emerald-500">
                 {deck.average_retention_percent}%
               </div>
             </div>
@@ -177,13 +176,13 @@ export default function FSRSVocabularyPage() {
               {/* Flashcard Body */}
               <div
                 onClick={() => setIsFlipped(!isFlipped)}
-                className="cursor-pointer rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950/40 border border-slate-800 hover:border-sky-500/50 p-8 min-h-[260px] flex flex-col items-center justify-center text-center transition space-y-4"
+                className="cursor-pointer rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 hover:border-[#0F766E]/50 p-8 min-h-[260px] flex flex-col items-center justify-center text-center transition space-y-4 shadow-sm"
               >
                 <div className="flex items-center gap-3">
                   <h2
                     className={`${
-                      activeLanguage === "zh" ? "text-5xl" : "text-4xl"
-                    } font-extrabold text-white tracking-wide`}
+                      activeLanguage === "zh" ? "text-5xl font-hanzi" : "text-4xl"
+                    } font-bold text-slate-900 dark:text-white tracking-wide`}
                   >
                     {activeCard.term}
                   </h2>
@@ -193,15 +192,19 @@ export default function FSRSVocabularyPage() {
                       e.stopPropagation();
                       speakText(activeCard.term);
                     }}
-                    className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 transition"
+                    className="p-2.5 rounded-lg border border-stone-200 dark:border-slate-700 bg-stone-50 hover:bg-stone-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#0F766E] dark:text-teal-400 transition"
                   >
                     <Volume2 className="w-5 h-5" />
                   </button>
                 </div>
 
-                <div className="text-base font-mono text-sky-300">
-                  {activeCard.phonetic}
-                </div>
+                {activeLanguage === "en" ? (
+                  <IpaBadge phonetic={activeCard.phonetic} language="en" size="lg" />
+                ) : (
+                  <div className="text-base font-mono font-medium text-[#0F766E] dark:text-teal-400">
+                    {activeCard.phonetic}
+                  </div>
+                )}
 
                 {activeCard.sino_vietnamese && (
                   <div className="text-xs px-3 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
@@ -241,8 +244,14 @@ export default function FSRSVocabularyPage() {
                         </button>
                       </div>
                       {activeCard.example_phonetic && (
-                        <div className="text-[11px] font-mono text-sky-300/80">
-                          {activeCard.example_phonetic}
+                        <div className="mt-1">
+                          {activeLanguage === "en" ? (
+                            <IpaBadge phonetic={activeCard.example_phonetic} language="en" size="sm" />
+                          ) : (
+                            <div className="text-[11px] font-mono text-stone-500 dark:text-slate-400">
+                              {activeCard.example_phonetic}
+                            </div>
+                          )}
                         </div>
                       )}
                       <div className="text-xs text-slate-300">
@@ -347,9 +356,13 @@ export default function FSRSVocabularyPage() {
                           <span className="text-sm font-bold text-white">
                             {card.term}
                           </span>
-                          <span className="text-xs font-mono text-sky-300">
-                            {card.phonetic}
-                          </span>
+                          {activeLanguage === "en" ? (
+                            <IpaBadge phonetic={card.phonetic} language="en" size="sm" />
+                          ) : (
+                            <span className="text-xs font-mono text-[#0F766E] dark:text-teal-400">
+                              {card.phonetic}
+                            </span>
+                          )}
                           {card.sino_vietnamese && (
                             <span className="text-[11px] text-amber-300">
                               [{card.sino_vietnamese}]

@@ -1,7 +1,8 @@
 from typing import Any
 import uuid
 
-from fastapi import APIRouter, Depends, Query, WebSocket, WebSocketDisconnect, status
+import httpx
+from fastapi import APIRouter, Depends, Query, Response, WebSocket, WebSocketDisconnect, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -29,6 +30,38 @@ from app.services.voice_service import (
 )
 
 router = APIRouter(prefix="/voice", tags=["AI Voice Tutor & Speaking Studio"])
+
+_TTS_CACHE: dict[str, bytes] = {}
+
+
+@router.get("/tts")
+async def tts_synthesize_endpoint(
+    text: str = Query(..., min_length=1, max_length=500),
+    lang: str = Query("zh", pattern="^(en|zh)$"),
+) -> Response:
+    """High-fidelity Text-to-Speech stream supporting Chinese Mandarin and English."""
+    clean_text = text.strip()
+    cache_key = f"{lang}:{clean_text}"
+    if cache_key in _TTS_CACHE:
+        return Response(content=_TTS_CACHE[cache_key], media_type="audio/mpeg")
+
+    tl = "zh-CN" if lang == "zh" else "en"
+    url = f"https://translate.google.com/translate_tts?ie=UTF-8&tl={tl}&client=tw-ob&q={clean_text}"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            resp = await client.get(url, headers=headers)
+            if resp.status_code == 200 and len(resp.content) > 0:
+                if len(_TTS_CACHE) < 1000:
+                    _TTS_CACHE[cache_key] = resp.content
+                return Response(content=resp.content, media_type="audio/mpeg")
+    except Exception:
+        pass
+
+    return Response(content=b"", media_type="audio/mpeg", status_code=204)
 
 
 @router.get("/scenarios", response_model=list[VoiceScenarioPreset])

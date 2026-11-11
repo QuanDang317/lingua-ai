@@ -2,80 +2,79 @@
 
 import React from "react";
 import Link from "next/link";
-import { Flame, Globe, Sparkles, Trophy, UserCheck } from "lucide-react";
+import { Flame, Mic, Trophy, Settings } from "lucide-react";
 import { useApp } from "@/context/app-context";
 import { cn } from "@/lib/utils";
 
 export function Topbar() {
-  const { user, activeLanguage, switchLanguage } = useApp();
+  const { user, activeLanguage, switchLanguage, setIsSettingsOpen } = useApp();
+
+  // Extract clean display name without long parenthetical suffix so it fits nicely at +110% zoom
+  const displayName = (user?.full_name || "Minh Nguyễn").replace(/\s*\(.*?\)\s*/g, "").trim();
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200/80 bg-white/85 px-6 backdrop-blur-md">
-      {/* Left: Language Switcher (English <-> Chinese Mandarin) */}
-      <div className="flex items-center gap-3">
-        <div className="hidden items-center gap-1.5 text-xs font-semibold text-slate-500 sm:flex">
-          <Globe className="h-4 w-4 text-indigo-600" />
-          <span>Chuyển ngôn ngữ học:</span>
-        </div>
-        <div className="inline-flex rounded-xl border border-slate-200 bg-slate-100/80 p-1">
+    <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-stone-200/90 dark:border-slate-800/80 bg-[#FAF9F5]/95 dark:bg-slate-950/85 px-4 md:px-6 backdrop-blur-md">
+      {/* Left: Language Segmented Control */}
+      <div className="flex items-center gap-2 shrink-0">
+        <div className="inline-flex items-center rounded-lg border border-stone-200 dark:border-slate-800 bg-stone-100 dark:bg-slate-900 p-0.5">
           <button
             type="button"
             onClick={() => void switchLanguage("zh")}
             className={cn(
-              "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
+              "inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs leading-snug whitespace-nowrap transition-all duration-150 focus-visible:outline-none",
               activeLanguage === "zh"
-                ? "bg-white text-indigo-700 shadow-sm ring-1 ring-slate-900/5"
-                : "text-slate-600 hover:text-slate-900"
+                ? "bg-white dark:bg-slate-800 text-[#0F766E] dark:text-teal-300 font-bold shadow-none border border-stone-200/90 dark:border-slate-700"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium"
             )}
           >
-            <span>🇨🇳</span>
-            <span>Tiếng Trung (HSK 3.0 / 2.0)</span>
+            <span>CN Tiếng Trung</span>
           </button>
           <button
             type="button"
             onClick={() => void switchLanguage("en")}
             className={cn(
-              "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
+              "inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs leading-snug whitespace-nowrap transition-all duration-150 focus-visible:outline-none",
               activeLanguage === "en"
-                ? "bg-white text-indigo-700 shadow-sm ring-1 ring-slate-900/5"
-                : "text-slate-600 hover:text-slate-900"
+                ? "bg-white dark:bg-slate-800 text-[#0F766E] dark:text-teal-300 font-bold shadow-none border border-stone-200/90 dark:border-slate-700"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium"
             )}
           >
-            <span>🇬🇧</span>
-            <span>Tiếng Anh (CEFR / IELTS)</span>
+            <span>GB Tiếng Anh</span>
           </button>
         </div>
       </div>
 
-      {/* Right: Streak, XP, User Profile */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1.5 rounded-xl border border-amber-200/80 bg-amber-50/90 px-3 py-1.5 text-xs font-bold text-amber-800">
-          <Flame className="h-4 w-4 fill-amber-500 text-amber-600" />
-          <span>{user?.profile?.current_streak_days ?? 7} ngày Streak</span>
+      {/* Right: Friendly Gamification Stats & Avatar */}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="inline-flex items-center gap-1.5 rounded-md border border-amber-300/90 bg-amber-50 dark:border-amber-500/25 dark:bg-amber-500/10 px-2.5 py-1.5 text-xs leading-snug whitespace-nowrap font-semibold text-amber-800 dark:text-amber-300">
+          <Flame className="h-3.5 w-3.5 shrink-0 fill-amber-500 text-amber-500" />
+          <span>{user?.profile?.current_streak_days ?? 7} ngày</span>
         </div>
 
-        <div className="hidden items-center gap-1.5 rounded-xl border border-indigo-200/80 bg-indigo-50/90 px-3 py-1.5 text-xs font-bold text-indigo-700 sm:flex">
-          <Trophy className="h-4 w-4 text-indigo-600" />
+        <div className="hidden sm:inline-flex items-center gap-1.5 rounded-md border border-[#CBD5E1] dark:border-slate-800 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-xs leading-snug whitespace-nowrap font-semibold text-slate-800 dark:text-slate-200">
+          <Trophy className="h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-slate-400" />
           <span>{user?.profile?.total_xp ?? 640} XP</span>
         </div>
 
         <Link
           href="/speaking"
-          className="hidden items-center gap-1.5 rounded-xl bg-indigo-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-500 lg:inline-flex"
+          className="hidden md:inline-flex items-center gap-1.5 rounded-md bg-[#0F766E] hover:bg-teal-800 px-3 py-1.5 text-xs leading-snug whitespace-nowrap font-bold text-white transition shadow-none"
         >
-          <Sparkles className="h-3.5 w-3.5" />
-          <span>AI Voice Studio</span>
+          <Mic className="h-3.5 w-3.5 shrink-0" />
+          <span>Luyện nói</span>
         </Link>
 
-        <Link
-          href="/login"
-          className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+        <button
+          type="button"
+          onClick={() => setIsSettingsOpen(true)}
+          className="inline-flex items-center gap-1.5 rounded-md border border-stone-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-2.5 py-1 text-xs leading-snug whitespace-nowrap font-medium text-slate-700 dark:text-slate-200 hover:border-[#0F766E] hover:bg-stone-50 dark:hover:bg-slate-800 transition shadow-none"
+          title="Cài đặt & Giao diện"
         >
-          <UserCheck className="h-4 w-4 text-emerald-600" />
+          <Settings className="h-3.5 w-3.5 shrink-0 text-stone-500 dark:text-slate-400" />
           <span className="max-w-[140px] truncate">
-            {user?.full_name || "Minh Nguyễn"}
+            {user?.full_name || "Minh Nguyễn"} (Bilingual...)
           </span>
-        </Link>
+        </button>
       </div>
     </header>
   );

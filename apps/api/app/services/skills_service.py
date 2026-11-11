@@ -52,9 +52,9 @@ LISTENING_CATALOG: list[ListeningTrackItem] = [
                 start_sec=0.0,
                 end_sec=7.5,
                 text_target="Good morning! Did you manage to pick up your boarding pass at the transfer desk?",
-                phonetic="/ɡʊd ˈmɔːnɪŋ | dɪdʒu ˈmænɪdʒ tə pɪk‿ʌp jə ˈbɔːdɪŋ pɑːs ət ðə ˈtrænsfɜː desk/",
+                phonetic="/ɡʊd ˈmɔːnɪŋ, dɪdʒu ˈmænɪdʒ tə pɪk ʌp jə ˈbɔːdɪŋ pɑːs ət ðə ˈtrænsfɜː desk/",
                 translation_vi="Chào buổi sáng! Bạn đã kịp lấy thẻ lên máy bay ở quầy chuyển tiếp chưa?",
-                acoustic_note_vi="Hiện tượng đồng hóa âm 'Did you' → /dɪdʒu/ và nối âm phụ âm-nguyên âm 'pick up' → /pɪk‿ʌp/.",
+                acoustic_note_vi="Hiện tượng đồng hóa âm 'Did you' → /dɪdʒu/ và nối âm phụ âm-nguyên âm 'pick up' → /pɪk ʌp/.",
             ),
             ListeningSentenceSegment(
                 index=1,
@@ -62,9 +62,9 @@ LISTENING_CATALOG: list[ListeningTrackItem] = [
                 start_sec=7.5,
                 end_sec=16.0,
                 text_target="Not yet. My previous flight was delayed by forty minutes because of heavy fog.",
-                phonetic="/nɒt jet | maɪ ˈpriːviəs flaɪt wəz dɪˈleɪd baɪ ˈfɔːti ˈmɪnɪts bɪˈkəz‿əv ˈhevi fɒɡ/",
+                phonetic="/nɒt jet. maɪ ˈpriːviəs flaɪt wəz dɪˈleɪd baɪ ˈfɔːti ˈmɪnɪts bɪˈkəz əv ˈhevi fɒɡ/",
                 translation_vi="Vẫn chưa. Chuyến bay trước của tôi bị hoãn 40 phút vì sương mù dày đặc.",
-                acoustic_note_vi="Âm cuối /-t/ trong 'flight' bị chặn (Unreleased stop) trước phụ âm 'was'; 'because of' nối âm thành /bɪˈkəz‿əv/.",
+                acoustic_note_vi="Âm cuối /-t/ trong 'flight' bị chặn (Unreleased stop) trước phụ âm 'was'; 'because of' đọc lướt thành /bɪˈkəz əv/.",
             ),
             ListeningSentenceSegment(
                 index=2,
@@ -72,9 +72,9 @@ LISTENING_CATALOG: list[ListeningTrackItem] = [
                 start_sec=16.0,
                 end_sec=25.0,
                 text_target="I have printed your new gate pass. Please head straight to Gate Twenty-Four right away.",
-                phonetic="/aɪv ˈprɪntɪd jə njuː ɡeɪt pɑːs | pliːz hed streɪt tə ɡeɪt ˈtwenti fɔː raɪt‿əˈweɪ/",
+                phonetic="/aɪv ˈprɪntɪd jə njuː ɡeɪt pɑːs. pliːz hed streɪt tə ɡeɪt ˈtwenti fɔː raɪt əˈweɪ/",
                 translation_vi="Tôi đã in thẻ cổng mới cho bạn. Vui lòng đi thẳng tới Cổng 24 ngay lập tức.",
-                acoustic_note_vi="'I have' rút gọn thành /aɪv/; 'right away' nối âm /t/ sang /ə/ thành /raɪt‿əˈweɪ/.",
+                acoustic_note_vi="'I have' rút gọn thành /aɪv/; 'right away' nối âm /t/ sang /ə/ thành /raɪt əˈweɪ/.",
             ),
         ],
         dictation_blanks=[
@@ -83,10 +83,10 @@ LISTENING_CATALOG: list[ListeningTrackItem] = [
                 sentence_prefix="Did you manage to ",
                 sentence_suffix=" your boarding pass at the transfer desk?",
                 expected_word="pick up",
-                phonetic_hint="/pɪk‿ʌp/",
+                phonetic_hint="/pɪk ʌp/",
                 meaning_vi="nhận / lấy (thẻ lên máy bay, hành lý)",
                 skill_tag="en_connected_speech_linking",
-                acoustic_reason_vi="Do phụ âm /k/ cuối từ 'pick' nối liền sang nguyên âm /ʌ/ của 'up' tạo thành /pɪk‿ʌp/, người học dễ nghe nhầm thành một từ đơn 'peacup'.",
+                acoustic_reason_vi="Do phụ âm /k/ cuối từ 'pick' nối liền sang nguyên âm /ʌ/ của 'up' tạo thành /pɪk ʌp/, người học dễ nghe nhầm thành một từ đơn 'peacup'.",
             ),
             ListeningDictationBlank(
                 blank_id="en_b1_blank_2",
@@ -118,7 +118,7 @@ LISTENING_CATALOG: list[ListeningTrackItem] = [
             ListeningQuizQuestion(
                 question_id="en_b1_quiz_2",
                 question_type="tone_or_phoneme_discrimination",
-                prompt="Which connected-speech phenomenon occurs in 'right away' (/raɪt‿əˈweɪ/)?",
+                prompt="Which connected-speech phenomenon occurs in 'right away' (/raɪt əˈweɪ/)?",
                 audio_focus_text="Please head straight to Gate Twenty-Four right away.",
                 options=[
                     "Consonant-to-Vowel Linking (Nối phụ âm cuối /t/ sang nguyên âm đầu /ə/)",
@@ -128,7 +128,7 @@ LISTENING_CATALOG: list[ListeningTrackItem] = [
                 ],
                 correct_answer="Consonant-to-Vowel Linking (Nối phụ âm cuối /t/ sang nguyên âm đầu /ə/)",
                 skill_tag="en_connected_speech_linking",
-                explanation_vi="Phụ âm kết thúc /t/ trong 'right' nối trực tiếp sang nguyên âm schwa /ə/ đầu từ 'away', tạo thành chuỗi âm liền mạch /raɪt‿əˈweɪ/.",
+                explanation_vi="Phụ âm kết thúc /t/ trong 'right' nối trực tiếp sang nguyên âm schwa /ə/ đầu từ 'away', tạo thành chuỗi âm liền mạch /raɪt əˈweɪ/.",
             ),
         ],
         key_vocabulary=[
@@ -172,9 +172,9 @@ LISTENING_CATALOG: list[ListeningTrackItem] = [
                 start_sec=8.0,
                 end_sec=17.0,
                 text_target="Yes, shipping fees rose by twelve percent, so we ought to reallocate funds from print advertising.",
-                phonetic="/jes | ˈʃɪpɪŋ fiːz rəʊz baɪ twelv pəˈsent | səʊ wi ˈɔːt‿tə ˌriːˈæləkeɪt fʌndz frəm prɪnt ˈædvətaɪzɪŋ/",
+                phonetic="/jes, ˈʃɪpɪŋ fiːz rəʊz baɪ twelv pəˈsent, səʊ wi ˈɔːt tə ˌriːˈæləkeɪt fʌndz frəm prɪnt ˈædvətaɪzɪŋ/",
                 translation_vi="Rồi ạ, phí vận chuyển đã tăng 12%, vì vậy chúng ta nên phân bổ lại ngân sách từ mảng quảng cáo in ấn.",
-                acoustic_note_vi="'ought to' đồng hóa hai âm /t/ liền nhau thành /ˈɔːt‿tə/.",
+                acoustic_note_vi="'ought to' đồng hóa hai âm /t/ liền nhau thành /ˈɔːt tə/.",
             ),
         ],
         dictation_blanks=[

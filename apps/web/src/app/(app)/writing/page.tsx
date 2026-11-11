@@ -221,19 +221,21 @@ export default function AIWritingAndHanziPage() {
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
       {/* Header */}
-      <div className="rounded-2xl bg-gradient-to-r from-purple-950/90 via-slate-900 to-slate-900 border border-purple-500/30 p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 shadow-none">
         <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/15 border border-purple-400/30 text-purple-300 text-xs font-semibold">
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-md bg-teal-50 dark:bg-teal-950/40 border border-teal-600/25 text-[#0F766E] dark:text-teal-400 text-xs font-semibold">
             <PenTool className="w-3.5 h-3.5" />
-            AI WRITING GRADER • RUBRIC DIAGNOSTICS & HANZI STROKE ORDER CANVAS
+            Luyện kỹ năng viết & Chữ Hán
           </div>
-          <h1 className="text-2xl font-bold text-white">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
             {activeLanguage === "zh"
-              ? "Luyện Viết Tiếng Trung HSK 3.0/2.0, Sắp Xếp Câu (连词成句) & Viết Nét Chữ Hán"
-              : "Luyện Viết Học Thuật IELTS Writing Task 1/2, TOEIC & Nâng Cấp Band 8.0+"}
+              ? "Luyện viết câu, đoạn văn & Viết chữ Hán"
+              : "Luyện viết đoạn văn & Luận tiếng Anh"}
           </h1>
-          <p className="text-sm text-slate-300">
-            Chấm điểm theo 4 tiêu chí chuẩn Rubric, bóc tách lỗi ngữ pháp/từ vựng kèm giải thích tiếng Việt và bản viết lại nâng cấp (Upgraded Model Version).
+          <p className="text-xs sm:text-sm text-stone-600 dark:text-slate-400 max-w-2xl">
+            {activeLanguage === "zh"
+              ? "Thực hành sắp xếp câu, viết đoạn văn và tập viết các nét chữ Hán theo thứ tự chuẩn trong khung điền tự cách."
+              : "Thực hành viết các bài luận theo chủ đề, nhận nhận xét chi tiết về từ vựng, ngữ pháp và gợi ý nâng cấp bài viết."}
           </p>
         </div>
       </div>
@@ -242,40 +244,40 @@ export default function AIWritingAndHanziPage() {
         {/* Left 7 Columns: AI Essay & Paragraph Writing Grader */}
         <div className="lg:col-span-7 space-y-6">
           {selectedTask && (
-            <div className="rounded-2xl bg-slate-900/90 border border-slate-800 p-6 space-y-4">
+            <div className="rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 p-5 sm:p-6 space-y-4 shadow-none">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <span className="text-xs font-semibold text-purple-400 uppercase">
+                  <span className="text-xs font-bold text-[#0F766E] dark:text-teal-400 uppercase tracking-wider">
                     {selectedTask.task_type} • {selectedTask.level_code}
                   </span>
-                  <h2 className="text-lg font-bold text-white mt-0.5">
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white mt-0.5">
                     {selectedTask.title}
                   </h2>
                 </div>
                 <button
                   onClick={() => setEssayText(selectedTask.sample_student_draft)}
-                  className="text-xs px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 font-medium transition"
+                  className="text-xs px-3 py-1.5 rounded-lg bg-stone-50 hover:bg-stone-100 dark:bg-slate-800 dark:hover:bg-slate-700 border border-stone-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium transition"
                 >
                   Nạp bài nháp mẫu để test AI Grader
                 </button>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-950/90 border border-slate-800 space-y-2">
-                <div className="text-xs font-semibold text-indigo-300">
+              <div className="p-4 rounded-lg bg-stone-50 dark:bg-slate-950 border border-stone-200 dark:border-slate-800 space-y-2">
+                <div className="text-xs font-bold text-[#0F766E] dark:text-teal-400">
                   Đề bài (Prompt):
                 </div>
-                <p className="text-sm text-white font-medium leading-relaxed">
+                <p className="text-sm text-slate-900 dark:text-white font-medium leading-relaxed">
                   {selectedTask.prompt_text}
                 </p>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-stone-500 dark:text-slate-400">
                   {selectedTask.instructions_vi}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs text-slate-400">
-                  <span className="font-semibold text-slate-300 flex items-center gap-1.5">
-                    <FileText className="w-3.5 h-3.5 text-purple-400" />
+                <div className="flex items-center justify-between text-xs text-stone-500 dark:text-slate-400">
+                  <span className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                    <FileText className="w-3.5 h-3.5 text-[#0F766E] dark:text-teal-400" />
                     Bài viết của bạn:
                   </span>
                   <span>
@@ -287,7 +289,7 @@ export default function AIWritingAndHanziPage() {
                   rows={6}
                   value={essayText}
                   onChange={(e) => setEssayText(e.target.value)}
-                  className="w-full rounded-xl bg-slate-950 border border-slate-800 focus:border-purple-500 focus:outline-none p-4 text-sm text-white leading-relaxed"
+                  className="w-full rounded-lg bg-stone-50/50 dark:bg-slate-950 border border-stone-200 dark:border-slate-700 focus:border-[#0F766E] focus:outline-none focus:ring-1 focus:ring-[#0F766E] p-4 text-sm text-slate-900 dark:text-white leading-relaxed placeholder-stone-400"
                   placeholder="Nhập bài viết của bạn tại đây..."
                 />
               </div>
@@ -295,37 +297,39 @@ export default function AIWritingAndHanziPage() {
               <button
                 onClick={handleEvaluateWriting}
                 disabled={evaluating}
-                className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-lg shadow-purple-600/25"
+                className="w-full py-2.5 px-4 rounded-lg bg-[#0F766E] hover:bg-teal-800 disabled:opacity-50 text-white font-bold text-sm flex items-center justify-center gap-2 transition shadow-none"
               >
-                <Sparkles className="w-4 h-4" />
-                {evaluating
-                  ? "AI Writing Grader đang chấm điểm theo Rubric..."
-                  : "Chấm điểm AI theo Rubric & Sinh Bản Viết Lại Nâng Cấp (Upgraded Version)"}
+                <PenTool className="w-4 h-4 shrink-0" />
+                <span>
+                  {evaluating
+                    ? "AI Writing Grader đang chấm điểm theo Rubric..."
+                    : "Chấm điểm AI theo Rubric & Sinh Bản Viết Lại Nâng Cấp"}
+                </span>
               </button>
             </div>
           )}
 
           {/* Evaluation Result Report */}
           {evaluationResult && (
-            <div className="rounded-2xl bg-slate-900/95 border border-purple-500/40 p-6 space-y-5">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+            <div className="rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 p-5 sm:p-6 space-y-5 shadow-none">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 dark:border-slate-800 pb-4">
                 <div>
-                  <span className="text-xs font-semibold text-purple-400 uppercase">
+                  <span className="text-xs font-bold text-[#0F766E] dark:text-teal-400 uppercase tracking-wider">
                     AI Writing Diagnostic Report
                   </span>
-                  <h3 className="text-xl font-bold text-white mt-0.5">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-0.5">
                     {evaluationResult.estimated_band_or_level} —{" "}
                     {evaluationResult.overall_score_100}/100 (+
                     {evaluationResult.xp_awarded} XP)
                   </h3>
                 </div>
-                <span className="px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-xs font-bold">
+                <span className="px-3 py-1 rounded-md bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs font-bold">
                   Độ dài: {evaluationResult.word_or_char_count}{" "}
                   {activeLanguage === "zh" ? "chữ Hán" : "từ"}
                 </span>
               </div>
 
-              <p className="text-xs text-slate-200 leading-relaxed bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+              <p className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed bg-stone-50 dark:bg-slate-950 p-3.5 rounded-lg border border-stone-200 dark:border-slate-800">
                 {evaluationResult.coach_feedback_vi}
               </p>
 
@@ -335,13 +339,13 @@ export default function AIWritingAndHanziPage() {
                   ([crit, desc]) => (
                     <div
                       key={crit}
-                      className="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800 space-y-1"
+                      className="p-3.5 rounded-lg bg-stone-50 dark:bg-slate-950 border border-stone-200 dark:border-slate-800 space-y-1"
                     >
-                      <div className="text-xs font-bold text-purple-300 flex items-center gap-1.5">
+                      <div className="text-xs font-bold text-[#0F766E] dark:text-teal-400 flex items-center gap-1.5">
                         <Award className="w-3.5 h-3.5" />
                         {crit}
                       </div>
-                      <p className="text-xs text-slate-300 leading-relaxed">
+                      <p className="text-xs text-stone-600 dark:text-slate-300 leading-relaxed">
                         {desc}
                       </p>
                     </div>
@@ -398,27 +402,27 @@ export default function AIWritingAndHanziPage() {
         <div className="lg:col-span-5 space-y-6">
           {/* Sentence Reordering */}
           {selectedReorder && (
-            <div className="rounded-2xl bg-slate-900/90 border border-slate-800 p-5 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Shuffle className="w-4 h-4 text-sky-400" />
-                  Sắp xếp từ thành câu chuẩn ({selectedReorder.level_code})
+            <div className="rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 p-5 space-y-4 shadow-none">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-sm font-bold text-[#0F172A] dark:text-white flex items-center gap-2">
+                  <Shuffle className="w-4 h-4 text-[#0F766E] dark:text-teal-400 shrink-0" />
+                  <span>Sắp xếp từ thành câu chuẩn ({selectedReorder.level_code})</span>
                 </h3>
                 <button
                   onClick={() => {
                     setChosenSegments([]);
                     setReorderChecked(false);
                   }}
-                  className="text-xs text-slate-400 hover:text-white inline-flex items-center gap-1"
+                  className="text-xs px-2.5 py-1 rounded-md border border-stone-200 dark:border-slate-700 bg-stone-50 hover:bg-stone-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 inline-flex items-center gap-1 font-medium shrink-0"
                 >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  Làm lại
+                  <RotateCcw className="w-3.5 h-3.5 shrink-0" />
+                  <span>Làm lại</span>
                 </button>
               </div>
 
-              <p className="text-xs text-slate-300">
+              <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
                 Nghĩa câu mục tiêu:{" "}
-                <strong className="text-white">
+                <strong className="text-[#0F172A] dark:text-white font-semibold">
                   {selectedReorder.translation_vi}
                 </strong>
               </p>
@@ -436,8 +440,8 @@ export default function AIWritingAndHanziPage() {
                       }
                       className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${
                         used
-                          ? "bg-slate-950 text-slate-600 border-slate-800 opacity-50"
-                          : "bg-slate-800 hover:bg-sky-600/30 text-white border-slate-700"
+                          ? "bg-slate-100 dark:bg-slate-950 text-slate-400 dark:text-slate-600 border-slate-200 dark:border-slate-800 opacity-50"
+                          : "bg-white hover:bg-sky-50 dark:bg-slate-800 dark:hover:bg-sky-600/30 text-slate-800 dark:text-white border-slate-300 dark:border-slate-700 shadow-sm"
                       }`}
                     >
                       {seg}
@@ -447,8 +451,8 @@ export default function AIWritingAndHanziPage() {
               </div>
 
               {/* Assembled Output */}
-              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 min-h-[52px] flex items-center justify-between gap-2">
-                <span className="text-sm font-bold text-sky-300">
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 min-h-[52px] flex items-center justify-between gap-2.5">
+                <span className="text-sm font-bold text-sky-600 dark:text-sky-300 min-w-0 flex-1 break-words leading-relaxed">
                   {joinedReorder || "Click các cụm từ phía trên theo đúng thứ tự..."}
                 </span>
                 <button
@@ -464,7 +468,7 @@ export default function AIWritingAndHanziPage() {
                           ]
                     )
                   }
-                  className="text-[11px] px-2 py-1 rounded bg-slate-800 text-slate-300 hover:text-white shrink-0"
+                  className="text-xs px-2.5 py-1 rounded bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold shrink-0 transition"
                 >
                   Xếp mẫu
                 </button>
@@ -472,17 +476,17 @@ export default function AIWritingAndHanziPage() {
 
               <button
                 onClick={() => setReorderChecked(true)}
-                className="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition"
+                className="w-full py-2.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition shadow-none"
               >
                 Kiểm tra cấu trúc câu
               </button>
 
               {reorderChecked && (
                 <div
-                  className={`p-3.5 rounded-xl border text-xs space-y-1 ${
+                  className={`p-3.5 rounded-lg border text-xs space-y-1 ${
                     isReorderCorrect
-                      ? "bg-emerald-950/30 border-emerald-500/30 text-emerald-200"
-                      : "bg-amber-950/30 border-amber-500/30 text-amber-200"
+                      ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-500/30 text-emerald-900 dark:text-emerald-200"
+                      : "bg-amber-50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-500/30 text-amber-900 dark:text-amber-200"
                   }`}
                 >
                   <div className="font-bold">
@@ -490,7 +494,7 @@ export default function AIWritingAndHanziPage() {
                       ? "Chính xác tuyệt đối!"
                       : `Đáp án chuẩn: ${selectedReorder.correct_sentence}`}
                   </div>
-                  <div className="text-slate-300">
+                  <div className="text-slate-700 dark:text-slate-300 leading-relaxed">
                     {selectedReorder.grammar_rule_vi}
                   </div>
                 </div>
@@ -500,21 +504,21 @@ export default function AIWritingAndHanziPage() {
 
           {/* Hanzi Stroke Order Interactive Canvas (Chinese Mode) */}
           {catalog && catalog.hanzi_characters.length > 0 && selectedHanzi && (
-            <div className="rounded-2xl bg-slate-900/90 border border-amber-500/30 p-5 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Brush className="w-4 h-4 text-amber-400" />
-                  Bảng Luyện Viết Chữ Hán Đúng Thứ Tự Nét (Stroke Order)
+            <div className="rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 p-5 space-y-4 shadow-none">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-sm font-bold text-[#0F172A] dark:text-white flex items-center gap-2">
+                  <Brush className="w-4 h-4 text-[#0F766E] dark:text-amber-400 shrink-0" />
+                  <span>Bảng Luyện Viết Chữ Hán Đúng Thứ Tự Nét (Stroke Order)</span>
                 </h3>
-                <div className="flex gap-1.5">
+                <div className="flex flex-wrap gap-1.5">
                   {catalog.hanzi_characters.map((ch) => (
                     <button
                       key={ch.character}
                       onClick={() => setSelectedHanzi(ch)}
-                      className={`w-8 h-8 rounded-lg font-bold text-sm border transition ${
+                      className={`min-w-[2.25rem] min-h-[2.25rem] px-2 py-1 rounded-lg font-bold text-sm border transition inline-flex items-center justify-center ${
                         selectedHanzi.character === ch.character
-                          ? "bg-amber-500 text-slate-950 border-amber-400"
-                          : "bg-slate-950 text-slate-300 border-slate-800"
+                          ? "bg-[#CCFBF1] dark:bg-amber-500 text-[#0F766E] dark:text-slate-950 border-[#14B8A6] dark:border-amber-400"
+                          : "bg-[#F8FAFC] dark:bg-slate-950 text-[#0F172A] dark:text-slate-300 border-[#CBD5E1] dark:border-slate-800"
                       }`}
                     >
                       {ch.character}
@@ -533,12 +537,12 @@ export default function AIWritingAndHanziPage() {
                     onMouseMove={moveStroke}
                     onMouseUp={endStroke}
                     onMouseLeave={endStroke}
-                    className="rounded-xl bg-slate-950 cursor-crosshair border border-slate-800 shadow-inner"
+                    className="rounded-xl bg-slate-950 cursor-crosshair border border-slate-800 shadow-inner max-w-full"
                   />
-                  <div className="flex items-center justify-between w-full text-xs text-slate-400 px-1">
+                  <div className="flex items-center justify-between w-full text-xs text-slate-600 dark:text-slate-400 px-1">
                     <span>
                       Số nét đã viết:{" "}
-                      <strong className="text-amber-300">{strokesDrawn}</strong> /{" "}
+                      <strong className="text-amber-700 dark:text-amber-300">{strokesDrawn}</strong> /{" "}
                       {selectedHanzi.stroke_count}
                     </span>
                     <button
@@ -546,7 +550,7 @@ export default function AIWritingAndHanziPage() {
                         resetCanvasGrid();
                         setStrokesDrawn(0);
                       }}
-                      className="text-slate-300 hover:text-white underline"
+                      className="text-slate-700 dark:text-slate-300 hover:underline font-medium"
                     >
                       Xóa bảng
                     </button>
@@ -554,25 +558,25 @@ export default function AIWritingAndHanziPage() {
                 </div>
 
                 <div className="space-y-2 text-xs">
-                  <div className="text-lg font-bold text-white">
+                  <div className="text-lg font-bold text-[#0F172A] dark:text-white leading-snug">
                     {selectedHanzi.character} ({selectedHanzi.pinyin}) — Hán-Việt:{" "}
-                    <span className="text-amber-300">
+                    <span className="text-amber-700 dark:text-amber-300">
                       {selectedHanzi.sino_vietnamese}
                     </span>
                   </div>
-                  <div className="text-slate-300">
+                  <div className="text-slate-700 dark:text-slate-300">
                     Nghĩa: <strong>{selectedHanzi.meaning_vi}</strong> • Bộ thủ:{" "}
                     {selectedHanzi.radical}
                   </div>
-                  <div className="text-[11px] text-amber-300/90">
+                  <div className="text-[11px] font-semibold text-amber-700 dark:text-amber-300/90">
                     {selectedHanzi.hsk3_band} ↔ {selectedHanzi.hsk2_level}
                   </div>
-                  <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 max-h-36 overflow-y-auto space-y-1">
-                    <div className="font-semibold text-slate-300">
+                  <div className="p-2.5 rounded-lg bg-[#F8FAFC] dark:bg-slate-950 border border-stone-200 dark:border-slate-800 max-h-36 overflow-y-auto space-y-1">
+                    <div className="font-semibold text-slate-800 dark:text-slate-300">
                       Thứ tự {selectedHanzi.stroke_count} nét chuẩn:
                     </div>
                     {selectedHanzi.stroke_names_ordered.map((st) => (
-                      <div key={st} className="text-[11px] text-slate-400">
+                      <div key={st} className="text-[11px] text-slate-600 dark:text-slate-400">
                         {st}
                       </div>
                     ))}
@@ -580,16 +584,16 @@ export default function AIWritingAndHanziPage() {
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-wrap sm:flex-nowrap gap-2">
                 <button
                   onClick={() => handleEvaluateHanzi(false)}
-                  className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition"
+                  className="flex-1 px-3 py-2.5 rounded-lg bg-[#CCFBF1] hover:bg-[#99F6E4] dark:bg-amber-500 dark:hover:bg-amber-400 border border-[#14B8A6] dark:border-amber-400 text-[#0F766E] dark:text-slate-950 font-bold text-xs transition"
                 >
                   Chấm điểm nét viết ({strokesDrawn}/{selectedHanzi.stroke_count})
                 </button>
                 <button
                   onClick={() => handleEvaluateHanzi(true)}
-                  className="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 font-semibold text-xs transition"
+                  className="px-3 py-2.5 rounded-lg bg-[#F8FAFC] hover:bg-stone-100 dark:bg-slate-800 dark:hover:bg-slate-700 border border-[#CBD5E1] dark:border-slate-700 text-slate-800 dark:text-amber-300 font-semibold text-xs transition"
                 >
                   Mô phỏng đủ {selectedHanzi.stroke_count} nét chuẩn
                 </button>

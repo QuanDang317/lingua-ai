@@ -3,18 +3,201 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
   body {
-    @apply bg-slate-50 text-slate-900 antialiased selection:bg-indigo-500 selection:text-white;
+    @apply bg-[#FAF9F5] text-slate-900 antialiased selection:bg-teal-700 selection:text-white;
+    color-scheme: light;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+@layer utilities {
+  .font-hanzi {
+    font-family: "Noto Serif SC", "Songti SC", "Source Han Serif SC", "PingFang SC", "Microsoft YaHei", serif;
   }
+  .font-ipa {
+    font-family: "Inter", "Segoe UI", "Lucida Sans Unicode", "DejaVu Sans", sans-serif;
+    letter-spacing: 0.015em;
+    line-height: 1.6;
+  }
+}
+
+/* Smooth transitions for theme and font scale */
+html {
+  transition: font-size 0.15s ease-out;
+}
+
+body {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Prevent text from shifting or overflowing boxes at +110% / +122% zoom */
+button,
+a,
+input,
+select,
+textarea {
+  line-height: 1.4;
+}
+
+p,
+span,
+div {
+  overflow-wrap: break-word;
+}
+
+/* =========================================================================
+   EDITORIAL WARM PAPER THEME (Classic High-Contrast, Anti-AI Slop)
+   ========================================================================= */
+
+html[data-theme="light"] {
+  color-scheme: light;
+}
+
+html[data-theme="light"] body {
+  background-color: #FAF9F5 !important;
+  color: #0f172a !important;
+}
+
+/* Light mode card backgrounds - Warm Paper & Crisp Surface */
+html[data-theme="light"] [class*="bg-slate-950"] {
+  background-color: #FAF9F5 !important;
+}
+
+html[data-theme="light"] [class*="bg-slate-900"] {
+  background-color: #ffffff !important;
+}
+
+html[data-theme="light"] [class*="bg-slate-800"] {
+  background-color: #f1f5f9 !important;
+  color: #1e293b !important;
+}
+
+/* Light mode borders - Subtle 1px borders */
+html[data-theme="light"] [class*="border-slate-800"],
+html[data-theme="light"] [class*="border-slate-700"] {
+  border-color: #e5e7eb !important;
+}
+
+/* Hero Cards: Replace dark gradients with clean white surface */
+html[data-theme="light"] [class*="from-indigo-950"],
+html[data-theme="light"] [class*="from-emerald-950"],
+html[data-theme="light"] [class*="from-sky-950"],
+html[data-theme="light"] [class*="from-amber-950"],
+html[data-theme="light"] [class*="from-purple-950"],
+html[data-theme="light"] [class*="from-slate-950"],
+html[data-theme="light"] [class*="from-slate-900"] {
+  background-image: none !important;
+  background-color: #ffffff !important;
+  border-color: #e5e7eb !important;
+  box-shadow: none !important;
+}
+
+/* Headings & Text */
+html[data-theme="light"] h1,
+html[data-theme="light"] h2,
+html[data-theme="light"] h3,
+html[data-theme="light"] h4 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .text-white {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .text-slate-100 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .text-slate-200 {
+  color: #1e293b !important;
+}
+
+html[data-theme="light"] .text-slate-300 {
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .text-slate-400 {
+  color: #64748b !important;
+}
+
+html[data-theme="light"] .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* Primary Action Buttons - Solid Teal #0F766E & Solid Sky #0284C7 with Crisp White Text */
+html[data-theme="light"] .bg-\[\#0F766E\],
+html[data-theme="light"] .bg-teal-700,
+html[data-theme="light"] .bg-teal-800 {
+  background-color: #0F766E !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .bg-\[\#0F766E\] *,
+html[data-theme="light"] .bg-teal-700 *,
+html[data-theme="light"] .bg-teal-800 * {
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .bg-sky-600,
+html[data-theme="light"] .bg-sky-500 {
+  background-color: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .bg-sky-600 *,
+html[data-theme="light"] .bg-sky-500 * {
+  color: #ffffff !important;
+}
+
+/* Light mode Form Inputs */
+html[data-theme="light"] input,
+html[data-theme="light"] textarea,
+html[data-theme="light"] select {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] input::placeholder,
+html[data-theme="light"] textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Editorial scrollbar */
+html[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #FAF9F5;
+}
+
+html[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+html[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Custom dark scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #020617;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
 }

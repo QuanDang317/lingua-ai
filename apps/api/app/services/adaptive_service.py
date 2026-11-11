@@ -535,17 +535,17 @@ REMEDIATION_TEMPLATES: dict[str, dict[str, object]] = {
     "en_connected_speech_linking": {
         "micro_lesson_rule_vi": (
             "QUY TẮC NỐI ÂM (Consonant-Vowel Linking): Khi từ đứng trước kết thúc bằng phụ âm (như /k/, /t/, /d/) và từ đứng sau bắt đầu bằng nguyên âm (như /ʌ/, /ə/, /ɪ/), "
-            "người bản xứ nối liền hai âm thành một nhịp liên tục (ví dụ: 'pick up' → /pɪk‿ʌp/)."
+            "người bản xứ nối liền hai âm thành một nhịp liên tục (ví dụ: 'pick up' → /pɪk ʌp/)."
         ),
         "question_prompt": "Trong câu 'Please turn off the air conditioner', cụm 'turn off' được nối âm tự nhiên như thế nào?",
         "options": [
-            "/tɜːn‿ɒf/ (Phụ âm cuối /n/ nối trực tiếp sang nguyên âm /ɒ/)",
+            "/tɜːn ɒf/ (Phụ âm cuối /n/ nối trực tiếp sang nguyên âm /ɒ/)",
             "Ngắt nghỉ 2 giây giữa 'turn' và 'off'",
             "Bỏ hoàn toàn từ 'off'",
             "Đọc thành /tɜːm ɒf/",
         ],
-        "correct_answer": "/tɜːn‿ɒf/ (Phụ âm cuối /n/ nối trực tiếp sang nguyên âm /ɒ/)",
-        "explanation_vi": "Phụ âm mũi /n/ cuối từ 'turn' nối mượt sang nguyên âm /ɒ/ đầu từ 'off' tạo thành /tɜːn‿ɒf/.",
+        "correct_answer": "/tɜːn ɒf/ (Phụ âm cuối /n/ nối trực tiếp sang nguyên âm /ɒ/)",
+        "explanation_vi": "Phụ âm mũi /n/ cuối từ 'turn' nối mượt sang nguyên âm /ɒ/ đầu từ 'off' tạo thành /tɜːn ɒf/.",
     },
     "zh_tone_3_sandhi": {
         "micro_lesson_rule_vi": (

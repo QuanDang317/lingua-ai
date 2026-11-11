@@ -10,7 +10,7 @@ import {
   CheckCircle2,
   Eye,
   ShieldCheck,
-  Sparkles,
+  BookOpen,
   Volume2,
   XCircle,
 } from "lucide-react";
@@ -21,6 +21,7 @@ import {
 } from "@/types";
 import { cn, speakNativeAudio } from "@/lib/utils";
 import { useApp } from "@/context/app-context";
+import { IpaBadge } from "@/components/IpaBadge";
 
 export default function LessonDetailPage() {
   const params = useParams<{ id: string }>();
@@ -78,23 +79,23 @@ export default function LessonDetailPage() {
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-28 rounded-2xl bg-slate-200/70" />
-        <div className="h-96 rounded-2xl bg-slate-200/70" />
+        <div className="h-28 rounded-2xl bg-slate-900/80 border border-slate-800" />
+        <div className="h-96 rounded-2xl bg-slate-900/80 border border-slate-800" />
       </div>
     );
   }
 
   if (error || !lesson) {
     return (
-      <div className="space-y-4 rounded-2xl border border-rose-200 bg-rose-50 p-6 text-rose-900">
+      <div className="space-y-4 rounded-2xl border border-rose-500/30 bg-rose-950/40 p-6 text-rose-200">
         <h2 className="text-lg font-bold">Không thể mở bài học</h2>
-        <p className="text-sm text-rose-700">{error}</p>
+        <p className="text-sm text-rose-300/80">{error}</p>
         <Link
           href="/roadmap"
-          className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2 text-xs font-semibold text-white"
+          className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2 text-xs font-semibold text-white hover:bg-rose-500 transition"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>Quay lại Lộ trình Tuần tự</span>
+          <span>Quay lại Lộ trình</span>
         </Link>
       </div>
     );
@@ -127,61 +128,59 @@ export default function LessonDetailPage() {
 
   return (
     <div className="space-y-8 pb-16">
-      {/* Top Breadcrumb & Header */}
-      <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-8">
+      {/* Top Header Card */}
+      <div className="rounded-xl border border-stone-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-6 shadow-none">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <Link
             href="/roadmap"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:underline"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0F766E] dark:text-teal-400 hover:underline transition"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span>Quay lại Lộ trình ({lesson.level_code})</span>
+            <span>Lộ trình ({lesson.level_code})</span>
           </Link>
 
           <div className="flex flex-wrap items-center gap-2">
             {lesson.is_gatekeeper && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-xs font-extrabold text-amber-800">
-                <ShieldCheck className="h-3.5 w-3.5" />
-                Gatekeeper Assessment (&ge; {lesson.passing_threshold}%)
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/30 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 text-xs font-bold text-amber-700 dark:text-amber-300">
+                <ShieldCheck className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                Gatekeeper &ge; {lesson.passing_threshold}%
               </span>
             )}
-            <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700">
+            <span className="rounded-md border border-teal-600/25 bg-teal-50 dark:bg-teal-950/40 px-2.5 py-1 text-xs font-bold text-[#0F766E] dark:text-teal-300">
               +{lesson.xp_reward} XP
             </span>
           </div>
         </div>
 
-        <h1 className="mt-3 text-2xl font-bold text-slate-900">
+        <h1 className="mt-4 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
           {lesson.title}
         </h1>
-        <p className="mt-1 text-sm text-slate-600">{lesson.summary}</p>
+        <p className="mt-1 text-sm text-stone-600 dark:text-slate-400 max-w-3xl">{lesson.summary}</p>
 
         {lesson.hsk2_equivalent && (
-          <div className="mt-3 inline-flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900">
-            <span>📌 Đối chiếu chuẩn:</span>
-            <span>
-              {lesson.level_title} ↔ {lesson.hsk2_equivalent}
-            </span>
+          <div className="mt-3 inline-flex items-center gap-2 rounded-lg border border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950/60 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300">
+            <span className="text-[#0F766E] dark:text-teal-400 font-semibold">Đối chiếu chuẩn:</span>
+            <span>{lesson.level_title} ↔ {lesson.hsk2_equivalent}</span>
           </div>
         )}
 
-        {/* Layer Display Toggles (Especially important for Chinese Mandarin) */}
-        <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
-          <span className="flex items-center gap-1.5 text-xs font-bold text-slate-500">
-            <Eye className="h-3.5 w-3.5 text-indigo-600" />
-            Lớp hiển thị tương tác:
+        {/* Interactive Layer Toggles */}
+        <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-stone-200 dark:border-slate-800/80 pt-4">
+          <span className="flex items-center gap-1.5 text-xs font-semibold text-stone-600 dark:text-slate-400">
+            <Eye className="h-3.5 w-3.5 text-[#0F766E] dark:text-teal-400" />
+            Lớp tương tác:
           </span>
           <button
             type="button"
             onClick={() => setShowPhonetic((v) => !v)}
             className={cn(
-              "rounded-lg px-2.5 py-1 text-xs font-semibold transition",
+              "rounded-md px-2.5 py-1 text-xs font-semibold transition border",
               showPhonetic
-                ? "bg-indigo-600 text-white"
-                : "bg-slate-100 text-slate-600"
+                ? "bg-[#0F766E] text-white border-[#0F766E] shadow-none"
+                : "bg-stone-50 dark:bg-slate-800/80 text-stone-600 dark:text-slate-400 border-stone-200 dark:border-slate-700/80 hover:text-slate-900 dark:hover:text-slate-200"
             )}
           >
-            {lesson.language_code === "zh" ? "Pinyin + Thanh điệu" : "Phiên âm IPA"}
+            {lesson.language_code === "zh" ? "Pinyin" : "Phiên âm IPA"}
           </button>
           {lesson.language_code === "zh" && (
             <>
@@ -189,25 +188,25 @@ export default function LessonDetailPage() {
                 type="button"
                 onClick={() => setShowSinoViet((v) => !v)}
                 className={cn(
-                  "rounded-lg px-2.5 py-1 text-xs font-semibold transition",
+                  "rounded-lg px-2.5 py-1 text-xs font-semibold transition border",
                   showSinoViet
-                    ? "bg-amber-600 text-white"
-                    : "bg-slate-100 text-slate-600"
+                    ? "bg-amber-600 text-white border-amber-500 shadow-sm shadow-amber-600/30"
+                    : "bg-slate-800/80 text-slate-400 border-slate-700/80 hover:text-slate-200"
                 )}
               >
-                Âm Hán-Việt
+                Hán-Việt
               </button>
               <button
                 type="button"
                 onClick={() => setShowStrokeOrder((v) => !v)}
                 className={cn(
-                  "rounded-lg px-2.5 py-1 text-xs font-semibold transition",
+                  "rounded-lg px-2.5 py-1 text-xs font-semibold transition border",
                   showStrokeOrder
-                    ? "bg-emerald-600 text-white"
-                    : "bg-slate-100 text-slate-600"
+                    ? "bg-emerald-600 text-white border-emerald-500 shadow-sm shadow-emerald-600/30"
+                    : "bg-slate-800/80 text-slate-400 border-slate-700/80 hover:text-slate-200"
                 )}
               >
-                Thứ tự nét (Stroke Order)
+                Thứ tự nét
               </button>
             </>
           )}
@@ -215,13 +214,13 @@ export default function LessonDetailPage() {
             type="button"
             onClick={() => setShowMeaningVi((v) => !v)}
             className={cn(
-              "rounded-lg px-2.5 py-1 text-xs font-semibold transition",
+              "rounded-lg px-2.5 py-1 text-xs font-semibold transition border",
               showMeaningVi
-                ? "bg-slate-900 text-white"
-                : "bg-slate-100 text-slate-600"
+                ? "bg-slate-700 text-white border-slate-600"
+                : "bg-slate-800/80 text-slate-400 border-slate-700/80 hover:text-slate-200"
             )}
           >
-            Nghĩa tiếng Việt
+            Nghĩa Việt
           </button>
         </div>
       </div>
@@ -233,13 +232,13 @@ export default function LessonDetailPage() {
           return (
             <section
               key={block.id}
-              className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm"
+              className="rounded-3xl border border-slate-800 bg-slate-900/80 p-6 shadow-xl backdrop-blur-md"
             >
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h2 className="text-lg font-bold text-slate-900">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h2 className="text-lg font-bold text-white">
                   {block.title}
                 </h2>
-                <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-bold uppercase text-slate-600">
+                <span className="rounded-lg border border-slate-800 bg-slate-950/80 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">
                   {block.content_type}
                 </span>
               </div>
@@ -248,33 +247,37 @@ export default function LessonDetailPage() {
               {Array.isArray(body.items) && (
                 <div className="mt-4 space-y-4">
                   {typeof body.intro_vi === "string" && (
-                    <p className="text-sm text-slate-600">{body.intro_vi}</p>
+                    <p className="text-xs text-slate-400">{body.intro_vi}</p>
                   )}
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {(body.items as Array<Record<string, unknown>>).map(
                       (item, idx) => (
                         <div
                           key={idx}
-                          className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4"
+                          className="rounded-2xl border border-slate-800/90 bg-slate-950/60 p-4 transition hover:border-slate-700"
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div>
                               <div className="flex flex-wrap items-center gap-2">
-                                <span className="text-xl font-extrabold text-slate-900">
+                                <span className="text-2xl font-bold font-hanzi text-slate-900 dark:text-white">
                                   {String(item.term)}
                                 </span>
-                                {showPhonetic && (
-                                  <span className="rounded-md bg-indigo-50 px-2 py-0.5 text-xs font-bold text-indigo-700">
-                                    {String(item.phonetic)}
-                                  </span>
+                                {showPhonetic && Boolean(item.phonetic) && (
+                                  lesson.language_code === "en" ? (
+                                    <IpaBadge phonetic={String(item.phonetic)} language="en" size="sm" />
+                                  ) : (
+                                    <span className="rounded-md border border-teal-600/25 bg-teal-50 dark:bg-teal-950/60 px-2 py-0.5 text-xs font-mono font-bold text-[#0F766E] dark:text-teal-300">
+                                      {String(item.phonetic)}
+                                    </span>
+                                  )
                                 )}
                                 {showSinoViet && Boolean(item.sino_vietnamese) && (
-                                  <span className="rounded-md bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-800">
+                                  <span className="rounded-md border border-amber-500/30 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 text-xs font-bold text-amber-700 dark:text-amber-300">
                                     Hán-Việt: {String(item.sino_vietnamese)}
                                   </span>
                                 )}
                               </div>
-                              <div className="mt-1 text-xs font-semibold text-slate-400">
+                              <div className="mt-1 text-xs font-medium text-stone-500 dark:text-slate-500">
                                 {String(item.part_of_speech)}
                                 {Boolean(item.hsk3_band) &&
                                   ` • ${String(item.hsk3_band)}`}
@@ -291,33 +294,39 @@ export default function LessonDetailPage() {
                                   lesson.language_code
                                 )
                               }
-                              className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-indigo-600 shadow-sm hover:bg-indigo-50"
-                              title="Nghe phát âm bản xứ"
+                              className="flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-900/80 text-[#0F766E] dark:text-teal-400 transition hover:bg-stone-100"
+                              title="Nghe phát âm"
                             >
                               <Volume2 className="h-4 w-4" />
                             </button>
                           </div>
 
                           {showMeaningVi && (
-                            <p className="mt-2 text-sm font-bold text-slate-800">
+                            <p className="mt-3 text-sm font-semibold text-slate-800 dark:text-slate-200">
                               Nghĩa: {String(item.meaning_vi)}{" "}
-                              <span className="font-normal text-slate-500">
+                              <span className="font-normal text-stone-500 dark:text-slate-400">
                                 ({String(item.meaning_en)})
                               </span>
                             </p>
                           )}
 
-                          <div className="mt-2 rounded-xl bg-white p-2.5 text-xs">
-                            <div className="font-semibold text-slate-800">
+                          <div className="mt-2.5 rounded-lg border border-stone-200 dark:border-slate-800/80 bg-stone-50/80 dark:bg-slate-900/80 p-3 text-xs">
+                            <div className="font-medium text-slate-900 dark:text-slate-200 font-hanzi">
                               Ví dụ: {String(item.example_target)}
                             </div>
                             {showPhonetic && Boolean(item.example_phonetic) && (
-                              <div className="text-indigo-600">
-                                {String(item.example_phonetic)}
+                              <div className="mt-1">
+                                {lesson.language_code === "en" ? (
+                                  <IpaBadge phonetic={String(item.example_phonetic)} language="en" size="sm" />
+                                ) : (
+                                  <div className="text-[#0F766E] dark:text-teal-400 font-mono text-xs">
+                                    {String(item.example_phonetic)}
+                                  </div>
+                                )}
                               </div>
                             )}
                             {showMeaningVi && (
-                              <div className="text-slate-500">
+                              <div className="mt-0.5 text-stone-600 dark:text-slate-400">
                                 → {String(item.example_vi)}
                               </div>
                             )}
@@ -325,11 +334,11 @@ export default function LessonDetailPage() {
 
                           {showStrokeOrder &&
                             Array.isArray(item.stroke_order_guide) && (
-                              <div className="mt-2 rounded-xl border border-emerald-200/80 bg-emerald-50/70 p-2.5 text-xs text-emerald-900">
-                                <div className="font-bold">
-                                  ✍️ Thứ tự nét viết (Stroke Order) &amp; Lưu ý:
+                              <div className="mt-2.5 rounded-lg border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-950/30 p-3 text-xs text-emerald-800 dark:text-emerald-200">
+                                <div className="font-bold text-emerald-700 dark:text-emerald-300">
+                                  ✍️ Thứ tự nét & Gợi ý:
                                 </div>
-                                <ul className="mt-1 list-disc pl-4 space-y-0.5">
+                                <ul className="mt-1 list-disc pl-4 space-y-0.5 text-emerald-800/90 dark:text-emerald-200/90">
                                   {(item.stroke_order_guide as string[]).map(
                                     (st, sIdx) => (
                                       <li key={sIdx}>{st}</li>
@@ -345,30 +354,30 @@ export default function LessonDetailPage() {
                 </div>
               )}
 
-              {/* Render Grammar / Stroke Order Rules */}
+              {/* Render Grammar Rules */}
               {Array.isArray(body.rules) && (
                 <div className="mt-4 space-y-4">
                   {(body.rules as Array<Record<string, unknown>>).map(
                     (rule, rIdx) => (
                       <div
                         key={rIdx}
-                        className="rounded-2xl border border-slate-200/80 bg-slate-50 p-4"
+                        className="rounded-xl border border-stone-200 dark:border-slate-800/90 bg-stone-50/60 dark:bg-slate-950/60 p-4"
                       >
-                        <h3 className="text-sm font-bold text-slate-900">
+                        <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                           {String(rule.heading || rule.rule_name)}
                         </h3>
                         {Boolean(rule.formula) && (
-                          <div className="mt-1.5 rounded-lg bg-indigo-950 px-3 py-2 font-mono text-xs font-semibold text-indigo-200">
+                          <div className="mt-2 rounded-lg border border-teal-600/25 bg-teal-50 dark:bg-slate-950 px-3 py-2 font-mono text-xs font-semibold text-[#0F766E] dark:text-teal-300">
                             {String(rule.formula)}
                           </div>
                         )}
-                        <p className="mt-2 text-xs leading-relaxed text-slate-700">
+                        <p className="mt-2 text-xs leading-relaxed text-stone-600 dark:text-slate-300">
                           {String(rule.explanation_vi)}
                         </p>
                         {Array.isArray(rule.examples) && (
-                          <ul className="mt-2 space-y-1 text-xs font-medium text-slate-600">
+                          <ul className="mt-2 space-y-1 text-xs font-medium text-stone-500 dark:text-slate-400">
                             {(rule.examples as string[]).map((ex, eIdx) => (
-                              <li key={eIdx}>{ex}</li>
+                              <li key={eIdx}>• {ex}</li>
                             ))}
                           </ul>
                         )}
@@ -385,39 +394,39 @@ export default function LessonDetailPage() {
                     (sec, sIdx) => (
                       <div
                         key={sIdx}
-                        className="rounded-2xl border border-indigo-100 bg-indigo-50/40 p-4"
+                        className="rounded-xl border border-teal-600/25 bg-teal-50/40 dark:bg-teal-950/20 p-4"
                       >
-                        <h3 className="text-sm font-bold text-indigo-950">
+                        <h3 className="text-sm font-bold text-[#0F766E] dark:text-teal-200">
                           {String(sec.heading)}
                         </h3>
-                        <p className="mt-1 whitespace-pre-line text-xs leading-relaxed text-slate-700">
+                        <p className="mt-1 whitespace-pre-line text-xs leading-relaxed text-stone-600 dark:text-slate-300">
                           {String(sec.explanation_vi)}
                         </p>
                         {Array.isArray(sec.examples) && (
-                          <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                          <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                             {(
                               sec.examples as Array<Record<string, string>>
                             ).map((ex, idx) => (
                               <div
                                 key={idx}
-                                className="flex items-center justify-between rounded-xl bg-white p-3 shadow-sm"
+                                className="flex items-center justify-between rounded-lg border border-stone-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-3 shadow-none"
                               >
                                 <div className="text-xs">
-                                  <div className="text-base font-bold text-slate-900">
+                                  <div className="text-base font-bold font-hanzi text-slate-900 dark:text-white">
                                     {ex.hanzi}
                                   </div>
                                   {showPhonetic && (
-                                    <div className="font-semibold text-indigo-600">
+                                    <div className="font-semibold font-mono text-[#0F766E] dark:text-teal-400">
                                       {ex.pinyin}
                                     </div>
                                   )}
                                   {showSinoViet && (
-                                    <div className="text-[11px] font-bold text-amber-700">
+                                    <div className="text-[11px] font-bold text-amber-700 dark:text-amber-400">
                                       Hán-Việt: {ex.sino_vietnamese}
                                     </div>
                                   )}
                                   {showMeaningVi && (
-                                    <div className="text-slate-600">
+                                    <div className="text-stone-500 dark:text-slate-400">
                                       {ex.meaning_vi}
                                     </div>
                                   )}
@@ -430,7 +439,7 @@ export default function LessonDetailPage() {
                                       lesson.language_code
                                     )
                                   }
-                                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-indigo-600 hover:bg-indigo-50"
+                                  className="flex h-8 w-8 items-center justify-center rounded-md border border-stone-200 dark:border-slate-700 bg-stone-50 dark:bg-slate-800 text-[#0F766E] dark:text-teal-400 hover:bg-stone-100"
                                 >
                                   <Volume2 className="h-4 w-4" />
                                 </button>
@@ -451,22 +460,28 @@ export default function LessonDetailPage() {
                     (line, lIdx) => (
                       <div
                         key={lIdx}
-                        className="flex items-start justify-between gap-4 rounded-2xl border border-slate-200/80 bg-slate-50 p-4"
+                        className="flex items-start justify-between gap-4 rounded-xl border border-stone-200 dark:border-slate-800/90 bg-stone-50/60 dark:bg-slate-950/60 p-4"
                       >
                         <div className="space-y-1">
-                          <div className="text-xs font-bold text-indigo-600">
+                          <div className="text-xs font-bold text-[#0F766E] dark:text-teal-400">
                             {line.speaker}
                           </div>
-                          <div className="text-sm font-bold text-slate-900">
+                          <div className="text-sm font-bold text-slate-900 dark:text-white font-hanzi">
                             {line.text}
                           </div>
                           {showPhonetic && line.phonetic && (
-                            <div className="text-xs font-medium text-slate-500">
-                              {line.phonetic}
+                            <div className="mt-1">
+                              {lesson.language_code === "en" ? (
+                                <IpaBadge phonetic={line.phonetic} language="en" size="sm" />
+                              ) : (
+                                <div className="text-xs font-mono font-medium text-stone-500 dark:text-slate-400">
+                                  {line.phonetic}
+                                </div>
+                              )}
                             </div>
                           )}
                           {showMeaningVi && line.vi && (
-                            <div className="text-xs text-slate-600">
+                            <div className="text-xs text-stone-600 dark:text-slate-400">
                               → {line.vi}
                             </div>
                           )}
@@ -476,7 +491,7 @@ export default function LessonDetailPage() {
                           onClick={() =>
                             speakNativeAudio(line.text, lesson.language_code)
                           }
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-indigo-600 hover:bg-indigo-50"
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-stone-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 text-[#0F766E] dark:text-teal-400 hover:bg-stone-100 transition"
                         >
                           <Volume2 className="h-4 w-4" />
                         </button>
@@ -488,7 +503,7 @@ export default function LessonDetailPage() {
 
               {/* Render Theory Overview */}
               {typeof body.overview_vi === "string" && (
-                <p className="mt-3 text-sm leading-relaxed text-slate-700">
+                <p className="mt-3 text-xs leading-relaxed text-slate-300">
                   {body.overview_vi}
                 </p>
               )}
@@ -499,26 +514,26 @@ export default function LessonDetailPage() {
 
       {/* Interactive Gatekeeper & Practice Quiz Section */}
       {activeExercise && (
-        <section className="rounded-3xl border-2 border-indigo-200 bg-white p-6 shadow-sm sm:p-8">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+        <section className="rounded-xl border border-stone-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-8 shadow-none">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-stone-200 dark:border-slate-800 pb-4">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700">
+              <div className="inline-flex items-center gap-2 rounded-md border border-teal-600/25 bg-teal-50 dark:bg-teal-950/60 px-2.5 py-1 text-xs font-bold text-[#0F766E] dark:text-teal-300">
                 <ShieldCheck className="h-4 w-4" />
                 <span>
                   {lesson.is_gatekeeper
-                    ? `BÀI KIỂM TRA MỞ KHÓA CẤP ĐỘ (GATEKEEPER THRESHOLD >= ${lesson.passing_threshold}%)`
-                    : `BÀI TẬP THỰC HÀNH (PASS THRESHOLD >= ${lesson.passing_threshold}%)`}
+                    ? `BÀI ĐÁNH GIÁ CẤP ĐỘ • NGƯỠNG ĐẠT ≥ ${lesson.passing_threshold}%`
+                    : `BÀI TẬP CỦNG CỐ • NGƯỠNG ĐẠT ≥ ${lesson.passing_threshold}%`}
                 </span>
               </div>
-              <h2 className="mt-2 text-xl font-bold text-slate-900">
+              <h2 className="mt-2 text-xl font-bold text-slate-900 dark:text-white">
                 {activeExercise.title}
               </h2>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-stone-500 dark:text-slate-400">
                 {activeExercise.instructions_vi}
               </p>
             </div>
 
-            {/* Quick Test Scenario Helpers */}
+            {/* Quick Test Scenario Helper */}
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
@@ -531,7 +546,7 @@ export default function LessonDetailPage() {
                   setSelectedAnswers(wrongMap);
                   void handleSubmitQuiz(wrongMap);
                 }}
-                className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-100"
+                className="rounded-lg border border-rose-200 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-950/40 px-3 py-1.5 text-xs font-semibold text-rose-700 dark:text-rose-300 transition hover:bg-rose-100"
               >
                 ⚡ Test kịch bản &lt; 80% (Kích hoạt AI Remediation)
               </button>
@@ -539,25 +554,25 @@ export default function LessonDetailPage() {
           </div>
 
           {/* Questions List */}
-          <div className="mt-6 space-y-6">
+          <div className="mt-6 space-y-5">
             {activeExercise.questions.map((q, idx) => {
               const options = q.prompt_json.options || [];
               const currentVal = selectedAnswers[q.id] || "";
               return (
                 <div
                   key={q.id}
-                  className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-5"
+                  className="rounded-xl border border-stone-200 dark:border-slate-800 bg-stone-50/60 dark:bg-slate-950/70 p-5"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="text-xs font-bold uppercase text-indigo-600">
-                      Câu {idx + 1} • Skill Tag: #{q.skill_tag}
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#0F766E] dark:text-teal-400">
+                      Câu {idx + 1} • #{q.skill_tag}
                     </span>
-                    <span className="text-xs font-semibold text-slate-500">
+                    <span className="text-xs font-semibold text-stone-500 dark:text-slate-500">
                       {q.points} điểm
                     </span>
                   </div>
 
-                  <p className="mt-2 text-sm font-bold text-slate-900">
+                  <p className="mt-2 text-sm font-semibold text-slate-900 dark:text-white">
                     {q.prompt_json.question || q.prompt_json.prompt}
                   </p>
 
@@ -575,10 +590,10 @@ export default function LessonDetailPage() {
                             }))
                           }
                           className={cn(
-                            "flex items-center justify-between rounded-xl border p-3.5 text-left text-xs font-semibold transition-all",
+                            "flex items-center justify-between rounded-lg border p-3.5 text-left text-xs font-semibold transition-all",
                             isSelected
-                              ? "border-indigo-600 bg-indigo-50/80 text-indigo-950 ring-1 ring-indigo-600"
-                              : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                              ? "border-[#0F766E] bg-teal-50 dark:bg-teal-950/60 text-[#0F766E] dark:text-teal-200 ring-1 ring-[#0F766E]"
+                              : "border-stone-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 text-slate-800 dark:text-slate-300 hover:border-stone-300 hover:text-slate-900 dark:hover:text-white"
                           )}
                         >
                           <span>{opt}</span>
@@ -596,42 +611,42 @@ export default function LessonDetailPage() {
               type="button"
               disabled={submitting}
               onClick={() => void handleSubmitQuiz()}
-              className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#0F766E] hover:bg-teal-800 px-6 py-2.5 text-sm font-bold text-white shadow-none transition disabled:opacity-50"
             >
-              <Sparkles className="h-4 w-4" />
+              <BookOpen className="h-4 w-4" />
               <span>
                 {submitting
                   ? "Đang chấm điểm & Phân tích..."
-                  : "Nộp bài & Đánh giá Gatekeeper"}
+                  : "Nộp bài & Đánh giá"}
               </span>
             </button>
           </div>
 
-          {/* Grading Result & Adaptive Remediation Loop */}
+          {/* Grading Result & Adaptive Remediation */}
           {gradingResult && (
-            <div className="mt-8 space-y-6 border-t-2 border-slate-100 pt-6">
+            <div className="mt-8 space-y-6 border-t border-stone-200 dark:border-slate-800 pt-6">
               <div
                 className={cn(
-                  "rounded-2xl border p-6",
+                  "rounded-xl border p-6",
                   gradingResult.passed
-                    ? "border-emerald-300 bg-emerald-50/90 text-emerald-950"
-                    : "border-rose-300 bg-rose-50/90 text-rose-950"
+                    ? "border-emerald-500/40 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200"
+                    : "border-rose-500/40 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-200"
                 )}
               >
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     {gradingResult.passed ? (
-                      <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+                      <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                     ) : (
-                      <AlertTriangle className="h-8 w-8 text-rose-600" />
+                      <AlertTriangle className="h-8 w-8 text-rose-600 dark:text-rose-400" />
                     )}
                     <div>
-                      <h3 className="text-lg font-extrabold">
+                      <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
                         {gradingResult.passed
-                          ? `ĐẠT CHUẨN GATEKEEPER: ${gradingResult.score_percent}% (+${gradingResult.xp_awarded} XP)`
-                          : `CHƯA ĐẠT CHUẨN MỞ KHÓA: ${gradingResult.score_percent}% (Yêu cầu >= ${gradingResult.passing_threshold}%)`}
+                          ? `ĐẠT CHUẨN: ${gradingResult.score_percent}% (+${gradingResult.xp_awarded} XP)`
+                          : `CHƯA ĐẠT: ${gradingResult.score_percent}% (Yêu cầu ≥ ${gradingResult.passing_threshold}%)`}
                       </h3>
-                      <p className="mt-1 text-xs leading-relaxed">
+                      <p className="mt-1 text-xs text-stone-600 dark:text-slate-300">
                         {gradingResult.ai_diagnostic_summary_vi}
                       </p>
                     </div>
@@ -641,7 +656,7 @@ export default function LessonDetailPage() {
                     gradingResult.unlocked_next_lesson_id && (
                       <Link
                         href={`/lessons/${gradingResult.unlocked_next_lesson_id}`}
-                        className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-500"
+                        className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-none hover:bg-emerald-500 transition"
                       >
                         <span>
                           Học tiếp:{" "}
@@ -656,22 +671,22 @@ export default function LessonDetailPage() {
 
               {/* Per-question explanation */}
               <div className="space-y-3">
-                <h4 className="text-sm font-bold text-slate-900">
-                  Chi tiết Chẩn đoán từng câu:
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                  Chi tiết từng câu:
                 </h4>
                 {gradingResult.question_feedbacks.map((fb) => (
                   <div
                     key={fb.question_id}
-                    className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs"
+                    className="rounded-lg border border-stone-200 dark:border-slate-800 bg-stone-50/70 dark:bg-slate-950/70 p-4 text-xs"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-slate-800">
+                      <span className="font-semibold text-slate-800 dark:text-slate-200">
                         {fb.question_prompt}
                       </span>
                       <span
                         className={cn(
                           "inline-flex items-center gap-1 font-bold",
-                          fb.is_correct ? "text-emerald-700" : "text-rose-700"
+                          fb.is_correct ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
                         )}
                       >
                         {fb.is_correct ? (
@@ -685,15 +700,15 @@ export default function LessonDetailPage() {
                         )}
                       </span>
                     </div>
-                    <div className="mt-1.5 text-slate-600">
-                      • Câu trả lời của bạn: <strong>{fb.user_answer}</strong> |
-                      Đáp án chuẩn:{" "}
-                      <strong className="text-emerald-700">
+                    <div className="mt-1.5 text-stone-500 dark:text-slate-400">
+                      • Bạn chọn: <strong className="text-slate-800 dark:text-white">{fb.user_answer}</strong> |
+                      Đáp án:{" "}
+                      <strong className="text-emerald-700 dark:text-emerald-400">
                         {fb.correct_answer}
                       </strong>
                     </div>
-                    <div className="mt-1 text-slate-700">
-                      💡 Giải thích: {fb.explanation_vi}
+                    <div className="mt-1 text-stone-600 dark:text-slate-300">
+                      💡 {fb.explanation_vi}
                     </div>
                   </div>
                 ))}
@@ -702,19 +717,18 @@ export default function LessonDetailPage() {
               {/* AI-Generated Remedial Drills when < 80% */}
               {!gradingResult.passed &&
                 gradingResult.remedial_drills.length > 0 && (
-                  <div className="rounded-3xl border-2 border-amber-300 bg-amber-50/70 p-6">
-                    <div className="flex items-center gap-2 text-amber-900">
-                      <Sparkles className="h-5 w-5 text-amber-600" />
-                      <h4 className="text-base font-extrabold">
-                        Bài Học Bù Thích Ứng (AI Adaptive Remediation Loop)
+                  <div className="rounded-xl border border-amber-500/40 bg-amber-50 dark:bg-amber-950/30 p-5 sm:p-6 shadow-none">
+                    <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300">
+                      <BookOpen className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                      <h4 className="text-base font-extrabold text-slate-900 dark:text-white">
+                        Bài Bổ Trợ Tức Thì (AI Adaptive Remediation)
                       </h4>
                     </div>
-                    <p className="mt-1 text-xs text-amber-800">
-                      Hệ thống đã ghi nhận các lỗi{" "}
-                      <strong>
+                    <p className="mt-1 text-xs text-amber-800/80 dark:text-amber-200/80">
+                      Phát hiện lỗ hổng ở kỹ năng:{" "}
+                      <strong className="text-amber-700 dark:text-amber-300">
                         {gradingResult.failed_skill_tags.join(", ")}
-                      </strong>{" "}
-                      vào bảng <code>learning_mistakes</code> và sinh bài tập bổ trợ dưới đây để bạn khắc phục ngay lỗ hổng:
+                      </strong>. Hãy hoàn thành các câu củng cố sau:
                     </p>
 
                     <div className="mt-4 space-y-4">
@@ -724,20 +738,20 @@ export default function LessonDetailPage() {
                         return (
                           <div
                             key={drill.skill_tag}
-                            className="rounded-2xl border border-amber-200 bg-white p-4 shadow-sm"
+                            className="rounded-lg border border-stone-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-4 shadow-none"
                           >
-                            <div className="text-xs font-bold uppercase text-indigo-600">
-                              Skill Tag: #{drill.skill_tag}
+                            <div className="text-xs font-bold uppercase tracking-wider text-[#0F766E] dark:text-teal-400">
+                              #{drill.skill_tag}
                             </div>
-                            <h5 className="mt-1 text-sm font-bold text-slate-900">
+                            <h5 className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
                               {drill.title_vi}
                             </h5>
-                            <p className="mt-1 rounded-xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-700">
-                              📖 <strong>Quy tắc cốt lõi:</strong>{" "}
+                            <p className="mt-1 rounded-md border border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950/80 p-3 text-xs leading-relaxed text-stone-600 dark:text-slate-300">
+                              📖 <strong>Quy tắc:</strong>{" "}
                               {drill.grammar_or_phonetic_rule_vi}
                             </p>
 
-                            <p className="mt-3 text-xs font-bold text-slate-900">
+                            <p className="mt-3 text-xs font-bold text-slate-800 dark:text-slate-200">
                               Câu hỏi củng cố: {drill.practice_question}
                             </p>
                             <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -752,12 +766,12 @@ export default function LessonDetailPage() {
                                     }))
                                   }
                                   className={cn(
-                                    "rounded-xl border p-2.5 text-left text-xs font-semibold transition",
+                                    "rounded-md border p-2.5 text-left text-xs font-semibold transition",
                                     chosen === opt
                                       ? isRight
-                                        ? "border-emerald-600 bg-emerald-50 text-emerald-900"
-                                        : "border-rose-600 bg-rose-50 text-rose-900"
-                                      : "border-slate-200 hover:bg-slate-50"
+                                        ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-200"
+                                        : "border-rose-500 bg-rose-50 dark:bg-rose-950/50 text-rose-800 dark:text-rose-200"
+                                      : "border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950/60 text-slate-700 dark:text-slate-300 hover:border-stone-300 hover:text-slate-900 dark:hover:text-white"
                                   )}
                                 >
                                   {opt}
@@ -767,10 +781,10 @@ export default function LessonDetailPage() {
                             {chosen && (
                               <div
                                 className={cn(
-                                  "mt-2 rounded-lg p-2.5 text-xs font-medium",
+                                  "mt-2 rounded-lg p-2.5 text-xs font-medium border",
                                   isRight
-                                    ? "bg-emerald-50 text-emerald-800"
-                                    : "bg-rose-50 text-rose-800"
+                                    ? "border-emerald-500/30 bg-emerald-950/40 text-emerald-300"
+                                    : "border-rose-500/30 bg-rose-950/40 text-rose-300"
                                 )}
                               >
                                 {isRight ? "✅ Chính xác! " : "❌ Chưa đúng. "}

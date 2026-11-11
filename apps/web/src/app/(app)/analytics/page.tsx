@@ -11,7 +11,7 @@ import {
   Flame,
   Mic,
   ShieldAlert,
-  Sparkles,
+  BookOpen,
   Target,
   Zap,
 } from "lucide-react";
@@ -148,41 +148,41 @@ export default function AdaptivePersonalizationAndAnalyticsPage() {
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
       {/* Header Banner */}
-      <div className="rounded-2xl bg-gradient-to-r from-indigo-950/90 via-slate-900 to-slate-900 border border-indigo-500/30 p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 shadow-none">
         <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-400/30 text-indigo-300 text-xs font-semibold">
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-md bg-teal-50 dark:bg-teal-950/40 border border-teal-600/25 text-[#0F766E] dark:text-teal-400 text-xs font-semibold">
             <Brain className="w-3.5 h-3.5" />
-            ADAPTIVE PERSONALIZATION • MISTAKE MEMORY LEDGER & PLACEMENT ENGINE
+            Theo dõi tiến độ & Khắc phục lỗi sai
           </div>
-          <h1 className="text-2xl font-bold text-white">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
             {activeLanguage === "zh"
-              ? "Cá Nhân Hóa Thích Ứng, Bộ Nhớ Lỗi Sai & Đánh Giá Năng Lực (HSK 3.0 & 2.0)"
-              : "Cá Nhân Hóa Thích Ứng, Bộ Nhớ Lỗi Sai & Đánh Giá Năng Lực (CEFR, IELTS & TOEIC)"}
+              ? "Tiến độ học tập & Sổ tay lỗi sai Tiếng Trung"
+              : "Tiến độ học tập & Sổ tay lỗi sai Tiếng Anh"}
           </h1>
-          <p className="text-sm text-slate-300">
-            Trình độ hiện tại:{" "}
-            <strong className="text-indigo-300">
+          <p className="text-xs sm:text-sm text-stone-600 dark:text-slate-400 max-w-2xl">
+            Trình độ ước tính:{" "}
+            <strong className="text-[#0F766E] dark:text-teal-400 font-semibold">
               {hub.cefr_or_hsk3_estimate}
             </strong>{" "}
-            {hub.hsk2_estimate ? `(Quy chiếu: ${hub.hsk2_estimate})` : ""} •{" "}
-            <strong className="text-amber-300">
-              {hub.high_priority_mistakes_count} lỗi ưu tiên cao
+            •{" "}
+            <strong className="text-amber-700 dark:text-amber-400 font-semibold">
+              {hub.high_priority_mistakes_count} điểm cần lưu ý
             </strong>{" "}
-            cần ôn bù •{" "}
-            <strong className="text-emerald-300">
-              {hub.resolved_mistakes_count} lỗi đã khắc phục
+            •{" "}
+            <strong className="text-emerald-700 dark:text-emerald-400 font-semibold">
+              {hub.resolved_mistakes_count} điểm đã tiến bộ
             </strong>
           </p>
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex flex-wrap gap-2 bg-slate-950/80 p-1.5 rounded-xl border border-slate-800">
+        <div className="flex flex-wrap gap-1.5 bg-stone-100 dark:bg-slate-950 p-1.5 rounded-lg border border-stone-200 dark:border-slate-800">
           <button
             onClick={() => setActiveTab("remediation")}
-            className={`px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition flex items-center gap-1.5 ${
               activeTab === "remediation"
-                ? "bg-indigo-600 text-white shadow-md"
-                : "text-slate-400 hover:text-white"
+                ? "bg-white dark:bg-slate-900 text-[#0F766E] dark:text-teal-400 shadow-sm font-bold"
+                : "text-stone-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             <ShieldAlert className="w-3.5 h-3.5" />
@@ -190,10 +190,10 @@ export default function AdaptivePersonalizationAndAnalyticsPage() {
           </button>
           <button
             onClick={() => setActiveTab("placement")}
-            className={`px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition flex items-center gap-1.5 ${
               activeTab === "placement"
-                ? "bg-indigo-600 text-white shadow-md"
-                : "text-slate-400 hover:text-white"
+                ? "bg-white dark:bg-slate-900 text-[#0F766E] dark:text-teal-400 shadow-sm font-bold"
+                : "text-stone-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             <Compass className="w-3.5 h-3.5" />
@@ -201,10 +201,10 @@ export default function AdaptivePersonalizationAndAnalyticsPage() {
           </button>
           <button
             onClick={() => setActiveTab("analytics")}
-            className={`px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition flex items-center gap-1.5 ${
               activeTab === "analytics"
-                ? "bg-indigo-600 text-white shadow-md"
-                : "text-slate-400 hover:text-white"
+                ? "bg-white dark:bg-slate-900 text-[#0F766E] dark:text-teal-400 shadow-sm font-bold"
+                : "text-stone-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             <Activity className="w-3.5 h-3.5" />
@@ -221,26 +221,26 @@ export default function AdaptivePersonalizationAndAnalyticsPage() {
           {/* Left 7 Columns: Structured Mistake Ledger & Active Memory Injection */}
           <div className="lg:col-span-7 space-y-6">
             {/* Active Voice Memory Injection Preview */}
-            <div className="rounded-2xl bg-slate-900/90 border border-indigo-500/30 p-5 space-y-2.5">
+            <div className="rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 p-5 space-y-2.5 shadow-none">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#0F766E] dark:text-teal-400 flex items-center gap-1.5">
                   <Mic className="w-3.5 h-3.5" />
                   Active Memory Injection (Bơm tự động vào AI Voice Tutor)
                 </span>
-                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                <span className="text-[11px] px-2.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
                   Real-time Synced
                 </span>
               </div>
-              <pre className="text-xs font-mono text-slate-200 whitespace-pre-wrap bg-slate-950/90 p-3.5 rounded-xl border border-slate-800 leading-relaxed">
+              <pre className="text-xs font-mono text-slate-800 dark:text-slate-200 whitespace-pre-wrap bg-stone-50 dark:bg-slate-950 p-3.5 rounded-lg border border-stone-200 dark:border-slate-800 leading-relaxed">
                 {hub.active_voice_memory_injection_prompt}
               </pre>
             </div>
 
             {/* Mistake Ledger List */}
-            <div className="rounded-2xl bg-slate-900/90 border border-slate-800 p-5 space-y-4">
+            <div className="rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 p-5 space-y-4 shadow-none">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 text-amber-400" />
+                <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   Sổ Cái Lỗi Sai Có Cấu Trúc (Structured Mistake Memory)
                 </h2>
                 <div className="flex items-center gap-1.5">
@@ -248,10 +248,10 @@ export default function AdaptivePersonalizationAndAnalyticsPage() {
                     <button
                       key={flt}
                       onClick={() => setPriorityFilter(flt)}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition ${
+                      className={`px-2.5 py-1 rounded-md text-xs font-semibold transition ${
                         priorityFilter === flt
-                          ? "bg-indigo-600 text-white"
-                          : "bg-slate-950 text-slate-400 hover:text-white"
+                          ? "bg-[#0F766E] text-white"
+                          : "bg-stone-50 dark:bg-slate-950 text-stone-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-stone-200 dark:border-slate-800"
                       }`}
                     >
                       {flt === "all"
@@ -279,16 +279,16 @@ export default function AdaptivePersonalizationAndAnalyticsPage() {
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <span className="px-2.5 py-0.5 rounded-md bg-slate-800 text-indigo-300 text-xs font-mono font-semibold">
+                          <span className="px-2.5 py-0.5 rounded-md bg-stone-100 dark:bg-slate-800 text-[#0F766E] dark:text-teal-300 text-xs font-mono font-semibold">
                             {m.category_tag}
                           </span>
-                          <span className="text-xs text-slate-400 uppercase">
+                          <span className="text-xs text-stone-500 dark:text-slate-400 uppercase">
                             {m.mistake_type} • Lặp lại {m.frequency} lần
                           </span>
                         </div>
                         <button
                           onClick={() => handleStartRemediation([m.id])}
-                          className="px-3 py-1 rounded-lg bg-indigo-600/25 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/30 text-xs font-semibold transition"
+                          className="px-3 py-1 rounded-md bg-teal-50 hover:bg-teal-100 dark:bg-teal-950/40 text-[#0F766E] dark:text-teal-300 border border-teal-600/25 text-xs font-semibold transition"
                         >
                           Ôn bù lỗi này
                         </button>
@@ -336,31 +336,31 @@ export default function AdaptivePersonalizationAndAnalyticsPage() {
 
           {/* Right 5 Columns: Interactive Targeted AI Remediation Generator & Grader */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="rounded-2xl bg-slate-900/95 border border-indigo-500/40 p-6 space-y-5 sticky top-6">
+            <div className="rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 p-5 sm:p-6 space-y-5 sticky top-6 shadow-none">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-bold uppercase text-indigo-400">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#0F766E] dark:text-teal-400">
                     Adaptive Remediation Engine
                   </span>
-                  <h3 className="text-lg font-bold text-white mt-0.5">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mt-0.5">
                     Phiên Học Bù Thích Ứng Cá Nhân Hóa
                   </h3>
                 </div>
                 <button
                   onClick={() => handleStartRemediation()}
                   disabled={loadingRemediation}
-                  className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition shadow-lg shadow-indigo-600/25 flex items-center gap-1.5"
+                  className="px-3.5 py-2 rounded-lg bg-[#0F766E] hover:bg-teal-800 text-white text-xs font-bold transition shadow-none flex items-center gap-1.5"
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
+                  <BookOpen className="w-3.5 h-3.5" />
                   {remediationSession ? "Sinh lại bài ôn" : "Tạo bài ôn bù ngay"}
                 </button>
               </div>
 
               {!remediationSession ? (
-                <div className="p-5 rounded-xl bg-slate-950/80 border border-slate-800 text-center space-y-3">
-                  <Target className="w-8 h-8 text-indigo-400 mx-auto" />
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    Nhấn <strong>&ldquo;Tạo bài ôn bù ngay&rdquo;</strong> để AI phân tích các lỗi sai ưu tiên cao của bạn và sinh bài giảng vi mô (Micro-Lesson) kèm bài tập khắc phục lỗ hổng.
+                <div className="p-5 rounded-lg bg-stone-50 dark:bg-slate-950 border border-stone-200 dark:border-slate-800 text-center space-y-3">
+                  <Target className="w-8 h-8 text-[#0F766E] dark:text-teal-400 mx-auto" />
+                  <p className="text-xs text-stone-600 dark:text-slate-300 leading-relaxed">
+                    Nhấn <strong>&ldquo;Tạo bài ôn bù ngay&rdquo;</strong> để hệ thống phân tích các lỗi sai ưu tiên cao của bạn và sinh bài giảng vi mô (Micro-Lesson) kèm bài tập khắc phục lỗ hổng.
                   </p>
                 </div>
               ) : (
@@ -388,15 +388,15 @@ export default function AdaptivePersonalizationAndAnalyticsPage() {
                     {remediationSession.drills.map((drill, idx) => (
                       <div
                         key={drill.drill_id}
-                        className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3"
+                        className="p-4 rounded-lg bg-stone-50 dark:bg-slate-950 border border-stone-200 dark:border-slate-800 space-y-3"
                       >
-                        <div className="text-xs font-bold text-indigo-300">
+                        <div className="text-xs font-bold text-[#0F766E] dark:text-teal-400">
                           #{idx + 1} • Khắc phục [{drill.category_tag}]
                         </div>
-                        <div className="p-2.5 rounded-lg bg-indigo-950/30 border border-indigo-500/30 text-xs text-slate-200 leading-relaxed">
+                        <div className="p-2.5 rounded-md bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 leading-relaxed">
                           {drill.micro_lesson_rule_vi}
                         </div>
-                        <div className="text-xs font-semibold text-white">
+                        <div className="text-xs font-semibold text-slate-900 dark:text-white">
                           {drill.question_prompt}
                         </div>
                         <div className="space-y-1.5">
@@ -412,10 +412,10 @@ export default function AdaptivePersonalizationAndAnalyticsPage() {
                                     [drill.mistake_id]: opt,
                                   }))
                                 }
-                                className={`w-full text-left px-3 py-2 rounded-lg text-xs transition border ${
+                                className={`w-full text-left px-3 py-2 rounded-md text-xs transition border ${
                                   chosen
-                                    ? "bg-indigo-600/30 border-indigo-400 text-white font-semibold"
-                                    : "bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700"
+                                    ? "bg-[#0F766E] text-white border-[#0F766E] font-semibold"
+                                    : "bg-white dark:bg-slate-900 border-stone-200 dark:border-slate-800 text-slate-800 dark:text-slate-300 hover:border-stone-300"
                                 }`}
                               >
                                 {opt}
@@ -480,7 +480,7 @@ export default function AdaptivePersonalizationAndAnalyticsPage() {
                     });
                     setPlacementAnswers(demoAns);
                   }}
-                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-300 text-xs font-semibold transition"
+                  className="px-3 py-1.5 rounded-lg bg-stone-50 hover:bg-stone-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-stone-200 dark:border-slate-700 text-xs font-semibold transition"
                 >
                   Điền nhanh đáp án mẫu (Đạt chuẩn B1 / HSK 3.0 Band 1–2)
                 </button>
@@ -493,7 +493,7 @@ export default function AdaptivePersonalizationAndAnalyticsPage() {
                     className="p-4 rounded-xl bg-slate-950/85 border border-slate-800 space-y-2.5"
                   >
                     <div className="flex items-center justify-between text-xs">
-                      <span className="px-2.5 py-0.5 rounded-md bg-indigo-500/15 text-indigo-300 font-semibold uppercase">
+                      <span className="px-2.5 py-0.5 rounded-md bg-teal-50 dark:bg-teal-950/40 border border-teal-600/25 text-[#0F766E] dark:text-teal-300 font-semibold uppercase">
                         Câu {idx + 1} • Trục {q.skill_domain}
                       </span>
                       <span className="text-slate-400">
@@ -526,7 +526,7 @@ export default function AdaptivePersonalizationAndAnalyticsPage() {
                             }
                             className={`w-full text-left px-3 py-2 rounded-lg text-xs transition border ${
                               chosen
-                                ? "bg-indigo-600/30 border-indigo-400 text-white font-semibold"
+                                ? "bg-[#0F766E] text-white border-[#0F766E] font-semibold"
                                 : "bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700"
                             }`}
                           >
@@ -542,7 +542,7 @@ export default function AdaptivePersonalizationAndAnalyticsPage() {
               <button
                 onClick={handleSubmitPlacementTest}
                 disabled={submittingPlacement}
-                className="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition shadow-lg shadow-indigo-600/25"
+                className="w-full py-3 rounded-lg bg-[#0F766E] hover:bg-teal-800 text-white font-bold text-sm transition shadow-none"
               >
                 {submittingPlacement
                   ? "Đang phân tích 6 trục kỹ năng & xếp lớp..."
@@ -625,7 +625,7 @@ export default function AdaptivePersonalizationAndAnalyticsPage() {
                       <div className="w-full max-w-[36px] bg-slate-950 rounded-t-lg overflow-hidden flex items-end h-24 border border-slate-800">
                         <div
                           className={`w-full rounded-t-md transition-all ${
-                            metGoal ? "bg-emerald-500" : "bg-indigo-500"
+                            metGoal ? "bg-emerald-500" : "bg-[#0F766E]"
                           }`}
                           style={{ height: `${pct}%` }}
                         />

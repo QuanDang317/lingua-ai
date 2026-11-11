@@ -6,14 +6,14 @@ import {
   Play,
   Square,
   Repeat,
-  Volume2,
+  Gauge,
   Eye,
   EyeOff,
+  BookOpen,
+  Volume2,
   CheckCircle2,
   AlertTriangle,
-  Sparkles,
-  Gauge,
-  BookOpen,
+  Info,
 } from "lucide-react";
 import { useApp } from "@/context/app-context";
 import { apiClient } from "@/lib/api";
@@ -21,10 +21,12 @@ import {
   ListeningTrackItem,
   SubmitListeningExerciseResponse,
 } from "@/types";
+import { speakNativeAudio, stopNativeAudio } from "@/lib/utils";
+import { IpaBadge } from "@/components/IpaBadge";
 
 const SPEED_OPTIONS = [0.75, 1.0, 1.25, 1.5];
 
-export default function ListeningLabPage() {
+export default function SmartListeningLabPage() {
   const { activeLanguage, refreshUser } = useApp();
   const [tracks, setTracks] = useState<ListeningTrackItem[]>([]);
   const [selectedTrack, setSelectedTrack] = useState<ListeningTrackItem | null>(
@@ -32,20 +34,18 @@ export default function ListeningLabPage() {
   );
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Audio Player & Layer Display States
-  const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0);
+  // Audio Playback & Sentence Loop State
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
-  const [loopSentenceIndex, setLoopSentenceIndex] = useState<number | null>(
-    null
-  );
+  const [loopSentenceIndex, setLoopSentenceIndex] = useState<number | null>(null);
+  const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0);
 
-  // Independent Layer Toggles (Chữ Hán/Target, Pinyin/IPA, Hán-Việt, Nghĩa Việt)
+  // Multi-Layer Transcript Visibility Toggles
   const [showTargetText, setShowTargetText] = useState<boolean>(true);
   const [showPhonetic, setShowPhonetic] = useState<boolean>(true);
   const [showSinoVi, setShowSinoVi] = useState<boolean>(true);
   const [showViTranslation, setShowViTranslation] = useState<boolean>(true);
 
-  // Exercise Answers & Submission
+  // Interactive Exercises State
   const [dictationAnswers, setDictationAnswers] = useState<
     Record<string, string>
   >({});
@@ -65,8 +65,6 @@ export default function ListeningLabPage() {
         setTracks(res);
         if (res.length > 0) {
           setSelectedTrack(res[0]);
-          setDictationAnswers({});
-          setQuizAnswers({});
         }
       })
       .finally(() => {
@@ -74,33 +72,35 @@ export default function ListeningLabPage() {
       });
     return () => {
       mounted = false;
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
+      stopNativeAudio();
+    };
+  }, [activeLanguage]);
+
+  useEffect(() => {
+    return () => {
+      if (typeof window !== "undefined") {
+        stopNativeAudio();
       }
     };
   }, [activeLanguage]);
 
   const speakSentence = (text: string, index: number, isLoop = false) => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = activeLanguage === "zh" ? "zh-CN" : "en-US";
-    utter.rate = playbackSpeed;
-    utter.onstart = () => setPlayingIndex(index);
-    utter.onend = () => {
-      if (isLoop || loopSentenceIndex === index) {
-        setTimeout(() => speakSentence(text, index, true), 450);
-      } else {
-        setPlayingIndex(null);
-      }
-    };
-    window.speechSynthesis.speak(utter);
+    speakNativeAudio(text, activeLanguage, {
+      rate: playbackSpeed,
+      onStart: () => setPlayingIndex(index),
+      onEnd: () => {
+        if (isLoop || loopSentenceIndex === index) {
+          setTimeout(() => speakSentence(text, index, true), 450);
+        } else {
+          setPlayingIndex(null);
+        }
+      },
+      onError: () => setPlayingIndex(null),
+    });
   };
 
   const stopAudio = () => {
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
+    stopNativeAudio();
     setPlayingIndex(null);
     setLoopSentenceIndex(null);
   };
@@ -111,20 +111,6 @@ export default function ListeningLabPage() {
       .map((s) => s.text_target)
       .join(" ");
     speakSentence(fullText, -1, false);
-  };
-
-  const handleAutoFillDemo = () => {
-    if (!selectedTrack) return;
-    const dAns: Record<string, string> = {};
-    selectedTrack.dictation_blanks.forEach((b) => {
-      dAns[b.blank_id] = b.expected_word;
-    });
-    const qAns: Record<string, string> = {};
-    selectedTrack.quiz_questions.forEach((q) => {
-      qAns[q.question_id] = q.correct_answer;
-    });
-    setDictationAnswers(dAns);
-    setQuizAnswers(qAns);
   };
 
   const handleSubmit = async () => {
@@ -143,41 +129,57 @@ export default function ListeningLabPage() {
     }
   };
 
+  const handleAutoFillDemo = () => {
+    if (!selectedTrack) return;
+    const sampleDict: Record<string, string> = {};
+    selectedTrack.dictation_blanks.forEach((b) => {
+      sampleDict[b.blank_id] = b.expected_word;
+    });
+    setDictationAnswers(sampleDict);
+
+    const sampleQuiz: Record<string, string> = {};
+    selectedTrack.quiz_questions.forEach((q) => {
+      sampleQuiz[q.question_id] = q.correct_answer;
+    });
+    setQuizAnswers(sampleQuiz);
+  };
+
   if (loading) {
     return (
-      <div className="p-8 space-y-6">
-        <div className="h-24 rounded-2xl bg-slate-900/60 border border-slate-800 animate-pulse" />
-        <div className="h-96 rounded-2xl bg-slate-900/60 border border-slate-800 animate-pulse" />
+      <div className="p-4 sm:p-6 space-y-4">
+        <div className="h-16 rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 animate-pulse" />
+        <div className="h-96 rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 animate-pulse" />
       </div>
     );
   }
 
   return (
-    <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
-      {/* Header Banner */}
-      <div className="rounded-2xl bg-gradient-to-r from-indigo-950/90 via-slate-900 to-slate-900 border border-indigo-500/30 p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-400/30 text-indigo-300 text-xs font-semibold">
+    <div className="max-w-7xl mx-auto space-y-5 antialiased">
+      {/* 1. Header Banner - Clean, High Contrast, Warm Surface */}
+      <div className="rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 px-5 py-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 shadow-none">
+        <div className="space-y-1">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-teal-50 dark:bg-teal-950/60 border border-teal-600/25 text-[#0F766E] dark:text-teal-400 text-xs font-semibold">
             <Headphones className="w-3.5 h-3.5" />
-            SMART LISTENING LAB • SENTENCE LOOPING & AI ACOUSTIC DIAGNOSTICS
+            <span>Luyện nghe hiểu & Nhại giọng</span>
           </div>
-          <h1 className="text-2xl font-bold text-white">
+          <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
             {activeLanguage === "zh"
-              ? "Phòng Luyện Nghe Tiếng Trung Thông Minh (HSK 3.0 & 2.0)"
-              : "Phòng Luyện Nghe Tiếng Anh Thông Minh (CEFR, IELTS & TOEIC)"}
+              ? "Luyện nghe & Chép chính tả Tiếng Trung"
+              : "Luyện nghe & Chép chính tả Tiếng Anh"}
           </h1>
-          <p className="text-sm text-slate-300">
+          <p className="text-xs text-stone-500 dark:text-slate-400 max-w-2xl leading-relaxed">
             {activeLanguage === "zh"
-              ? "Bật/tắt độc lập 4 lớp Chữ Hán / Pinyin / Hán-Việt / Nghĩa Việt, lặp từng câu và phân tích biến điệu Tone Sandhi & âm đầu zh/ch/sh vs z/c/s."
-              : "Điều chỉnh tốc độ 0.75x–1.5x, lặp lại từng câu (Sentence Loop), nghe chép chính tả và chẩn đoán nối âm / nuốt âm tốc độ bản xứ."}
+              ? "Lắng nghe từng câu với giọng đọc bản xứ chuẩn Bắc Kinh, xem phiên âm Pinyin và rèn luyện kỹ năng nghe chép chính tả."
+              : "Nghe từng câu chậm rãi, kiểm tra phát âm nối âm / nuốt âm và luyện chép chính tả theo chuẩn quốc tế."}
           </p>
         </div>
 
-        {/* Track Selector Pills */}
-        <div className="flex flex-wrap gap-2">
+        {/* Track Selector Buttons */}
+        <div className="flex flex-wrap gap-2 shrink-0">
           {tracks.map((track) => (
             <button
               key={track.track_id}
+              type="button"
               onClick={() => {
                 stopAudio();
                 setSelectedTrack(track);
@@ -185,10 +187,10 @@ export default function ListeningLabPage() {
                 setQuizAnswers({});
                 setDiagnosticResult(null);
               }}
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition border ${
+              className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition border ${
                 selectedTrack?.track_id === track.track_id
-                  ? "bg-indigo-600 text-white border-indigo-400 shadow-lg shadow-indigo-600/25"
-                  : "bg-slate-900/80 text-slate-300 border-slate-800 hover:border-slate-700"
+                  ? "bg-[#0F766E] text-white border-[#0F766E] shadow-none"
+                  : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-stone-200 dark:border-slate-800 hover:border-stone-300"
               }`}
             >
               <div>{track.level_code}</div>
@@ -201,21 +203,21 @@ export default function ListeningLabPage() {
       </div>
 
       {selectedTrack && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left 7 Columns: Smart Audio Player & Multi-Layer Sentence Loop Transcript */}
-          <div className="lg:col-span-7 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          {/* Left 7 Columns: Audio Controller & Transcript Cards */}
+          <div className="lg:col-span-7 space-y-5">
             {/* Audio Controller Card */}
-            <div className="rounded-2xl bg-slate-900/90 border border-slate-800 p-5 space-y-4">
+            <div className="rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 p-5 space-y-4 shadow-none">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <span className="text-xs font-semibold text-indigo-400 uppercase tracking-wider">
+                  <span className="text-xs font-bold text-[#0F766E] dark:text-teal-400 uppercase tracking-wider">
                     {selectedTrack.category}
                   </span>
-                  <h2 className="text-lg font-bold text-white mt-0.5">
+                  <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mt-0.5">
                     {selectedTrack.title}
                   </h2>
                   {selectedTrack.hsk2_equivalent && (
-                    <span className="inline-block mt-1 text-xs px-2.5 py-0.5 rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                    <span className="inline-block mt-1 text-xs px-2.5 py-0.5 rounded-md bg-stone-100 dark:bg-slate-800 text-stone-700 dark:text-slate-300 border border-stone-200 dark:border-slate-700 font-medium">
                       Quy chiếu song song: {selectedTrack.level_code} ↔{" "}
                       {selectedTrack.hsk2_equivalent}
                     </span>
@@ -223,16 +225,17 @@ export default function ListeningLabPage() {
                 </div>
 
                 {/* Speed Control */}
-                <div className="flex items-center gap-1.5 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800">
-                  <Gauge className="w-4 h-4 text-indigo-400 mr-1" />
+                <div className="flex items-center gap-1 bg-stone-50 dark:bg-slate-950 px-2.5 py-1 rounded-lg border border-stone-200 dark:border-slate-800">
+                  <Gauge className="w-3.5 h-3.5 text-[#0F766E] mr-1" />
                   {SPEED_OPTIONS.map((spd) => (
                     <button
                       key={spd}
+                      type="button"
                       onClick={() => setPlaybackSpeed(spd)}
-                      className={`px-2 py-1 rounded-lg text-xs font-semibold transition ${
+                      className={`px-2 py-0.5 rounded-md text-xs transition ${
                         playbackSpeed === spd
-                          ? "bg-indigo-600 text-white"
-                          : "text-slate-400 hover:text-white"
+                          ? "bg-[#0F766E] text-white font-semibold"
+                          : "text-slate-600 dark:text-slate-400 hover:text-slate-900 font-medium"
                       }`}
                     >
                       {spd}x
@@ -241,39 +244,43 @@ export default function ListeningLabPage() {
                 </div>
               </div>
 
-              <p className="text-xs text-slate-400 leading-relaxed">
+              <p className="text-xs text-stone-600 dark:text-slate-400 leading-relaxed">
                 {selectedTrack.summary_vi}
               </p>
 
-              {/* Master Play / Stop & Independent Layer Toggles */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-800/80">
+              {/* Master Play / Stop & 4 Layer Toggles */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-stone-200/90 dark:border-slate-800">
                 <div className="flex items-center gap-2">
+                  {/* 1. Nút "Phát toàn bộ": Nền Teal #0F766E, chữ trắng, bo góc 8px (rounded-lg) */}
                   <button
+                    type="button"
                     onClick={playFullTrack}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition shadow-md shadow-indigo-600/20"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0F766E] hover:bg-teal-800 text-white text-xs font-semibold transition shadow-none"
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />
-                    Phát toàn bộ ({playbackSpeed}x)
+                    <span>Phát toàn bộ ({playbackSpeed}x)</span>
                   </button>
                   {playingIndex !== null && (
                     <button
+                      type="button"
                       onClick={stopAudio}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-xs font-semibold transition"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition shadow-none"
                     >
                       <Square className="w-3.5 h-3.5 fill-current" />
-                      Dừng phát
+                      <span>Dừng phát</span>
                     </button>
                   )}
                 </div>
 
-                {/* Layer Visibility Toggles */}
+                {/* 1. Bộ 4 nút bật/tắt: Chuẩn hóa về 1 tông màu Teal (Active: #F0FDF4 / viền #0F766E; Inactive: #F8FAFC / #E2E8F0 / #475569) */}
                 <div className="flex flex-wrap items-center gap-1.5">
                   <button
+                    type="button"
                     onClick={() => setShowTargetText(!showTargetText)}
-                    className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition ${
+                    className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs border transition-colors ${
                       showTargetText
-                        ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
-                        : "bg-slate-950 text-slate-500 border-slate-800"
+                        ? "bg-[#F0FDF4] dark:bg-teal-950/60 border-[#0F766E] text-[#0F766E] dark:text-teal-300 font-semibold"
+                        : "bg-[#F8FAFC] dark:bg-slate-900 border-[#E2E8F0] dark:border-slate-800 text-[#475569] dark:text-slate-400 hover:bg-slate-100 font-medium"
                     }`}
                   >
                     {showTargetText ? (
@@ -281,53 +288,59 @@ export default function ListeningLabPage() {
                     ) : (
                       <EyeOff className="w-3.5 h-3.5" />
                     )}
-                    {activeLanguage === "zh" ? "Chữ Hán" : "Transcript"}
+                    <span>{activeLanguage === "zh" ? "Chữ Hán" : "Transcript"}</span>
                   </button>
+
                   <button
+                    type="button"
                     onClick={() => setShowPhonetic(!showPhonetic)}
-                    className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition ${
+                    className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs border transition-colors ${
                       showPhonetic
-                        ? "bg-sky-500/15 text-sky-300 border-sky-500/30"
-                        : "bg-slate-950 text-slate-500 border-slate-800"
+                        ? "bg-[#F0FDF4] dark:bg-teal-950/60 border-[#0F766E] text-[#0F766E] dark:text-teal-300 font-semibold"
+                        : "bg-[#F8FAFC] dark:bg-slate-900 border-[#E2E8F0] dark:border-slate-800 text-[#475569] dark:text-slate-400 hover:bg-slate-100 font-medium"
                     }`}
                   >
-                    {activeLanguage === "zh" ? "Pinyin" : "IPA"}
+                    <span>{activeLanguage === "zh" ? "Pinyin" : "IPA"}</span>
                   </button>
+
                   {activeLanguage === "zh" && (
                     <button
+                      type="button"
                       onClick={() => setShowSinoVi(!showSinoVi)}
-                      className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition ${
+                      className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs border transition-colors ${
                         showSinoVi
-                          ? "bg-amber-500/15 text-amber-300 border-amber-500/30"
-                          : "bg-slate-950 text-slate-500 border-slate-800"
+                          ? "bg-[#F0FDF4] dark:bg-teal-950/60 border-[#0F766E] text-[#0F766E] dark:text-teal-300 font-semibold"
+                          : "bg-[#F8FAFC] dark:bg-slate-900 border-[#E2E8F0] dark:border-slate-800 text-[#475569] dark:text-slate-400 hover:bg-slate-100 font-medium"
                       }`}
                     >
-                      Hán-Việt
+                      <span>Hán-Việt</span>
                     </button>
                   )}
+
                   <button
+                    type="button"
                     onClick={() => setShowViTranslation(!showViTranslation)}
-                    className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition ${
+                    className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs border transition-colors ${
                       showViTranslation
-                        ? "bg-purple-500/15 text-purple-300 border-purple-500/30"
-                        : "bg-slate-950 text-slate-500 border-slate-800"
+                        ? "bg-[#F0FDF4] dark:bg-teal-950/60 border-[#0F766E] text-[#0F766E] dark:text-teal-300 font-semibold"
+                        : "bg-[#F8FAFC] dark:bg-slate-900 border-[#E2E8F0] dark:border-slate-800 text-[#475569] dark:text-slate-400 hover:bg-slate-100 font-medium"
                     }`}
                   >
-                    Nghĩa Việt
+                    <span>Nghĩa Việt</span>
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Sentence-by-Sentence Looping Transcript */}
-            <div className="rounded-2xl bg-slate-900/90 border border-slate-800 p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Volume2 className="w-4 h-4 text-indigo-400" />
-                  Từng câu hội thoại & Lặp câu thông minh (Sentence-by-Sentence Loop)
+            {/* Sentence-by-Sentence Looping Transcript Card */}
+            <div className="rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 p-5 space-y-3.5 shadow-none">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-stone-200/90 dark:border-slate-800 pb-3">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Volume2 className="w-4 h-4 text-[#0F766E]" />
+                  <span>Danh sách câu thoại & Luyện nhại giọng (Shadowing)</span>
                 </h3>
-                <span className="text-xs text-slate-400">
-                  Nhấn &ldquo;Loop câu&rdquo; để nghe lặp lại liên tục vị trí nối âm / biến điệu
+                <span className="text-xs text-stone-500 dark:text-slate-400">
+                  Nhấn &ldquo;Nghe câu&rdquo; hoặc bật &ldquo;Loop câu&rdquo; để luyện phát âm
                 </span>
               </div>
 
@@ -338,33 +351,41 @@ export default function ListeningLabPage() {
                   return (
                     <div
                       key={seg.index}
-                      className={`rounded-xl p-4 border transition ${
+                      className={`rounded-lg p-4 border transition-all ${
                         isPlayingThis || isLoopingThis
-                          ? "bg-indigo-950/50 border-indigo-500/50"
-                          : "bg-slate-950/70 border-slate-800/80"
+                          ? "bg-[#F0FDF4]/70 dark:bg-teal-950/40 border-[#0F766E] dark:border-teal-600 ring-1 ring-[#0F766E]/20"
+                          : "bg-[#FAF9F5]/70 dark:bg-slate-950/60 border-stone-200/90 dark:border-slate-800"
                       }`}
                     >
-                      <div className="flex items-center justify-between gap-2 mb-2">
+                      {/* 2. Sửa lỗi mất chữ ở badge vai nhân vật & nút bấm sắc nét */}
+                      <div className="flex items-center justify-between gap-2 mb-2.5">
                         <div className="flex items-center gap-2">
-                          <span className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 text-xs font-semibold">
+                          {/* Badge vai nhân vật: nền #E2E8F0, chữ #1E293B font-semibold rõ nét 100% */}
+                          <span className="px-2.5 py-0.5 rounded-md bg-[#E2E8F0] dark:bg-slate-800 text-[#1E293B] dark:text-slate-100 text-xs font-semibold">
                             {seg.speaker}
                           </span>
-                          <span className="text-[11px] font-mono text-slate-400">
+                          <span className="text-xs font-mono text-[#475569] dark:text-slate-400 font-medium">
                             {seg.start_sec.toFixed(1)}s – {seg.end_sec.toFixed(1)}s
                           </span>
                         </div>
+
+                        {/* Nút "Nghe câu" & "Loop câu" */}
                         <div className="flex items-center gap-1.5">
+                          {/* 1. Nút "Nghe câu": Nền trắng #FFFFFF, viền #CBD5E1, chữ & icon #0F172A, hover sang #0F766E */}
                           <button
+                            type="button"
                             onClick={() => {
                               setLoopSentenceIndex(null);
                               speakSentence(seg.text_target, seg.index, false);
                             }}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-medium transition"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white dark:bg-slate-800 border border-[#CBD5E1] dark:border-slate-700 text-[#0F172A] dark:text-slate-100 hover:border-[#0F766E] hover:text-[#0F766E] text-xs font-medium transition shadow-none"
                           >
                             <Play className="w-3 h-3 fill-current" />
-                            Nghe câu
+                            <span>Nghe câu</span>
                           </button>
+
                           <button
+                            type="button"
                             onClick={() => {
                               if (isLoopingThis) {
                                 stopAudio();
@@ -373,59 +394,71 @@ export default function ListeningLabPage() {
                                 speakSentence(seg.text_target, seg.index, true);
                               }
                             }}
-                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium border transition ${
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border transition ${
                               isLoopingThis
-                                ? "bg-amber-500 text-slate-950 border-amber-400 font-bold"
-                                : "bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-600"
+                                ? "bg-[#0F766E] text-white border-[#0F766E] font-semibold"
+                                : "bg-white dark:bg-slate-800 border border-[#CBD5E1] dark:border-slate-700 text-[#0F172A] dark:text-slate-100 hover:border-[#0F766E] hover:text-[#0F766E]"
                             }`}
                           >
                             <Repeat className="w-3 h-3" />
-                            {isLoopingThis ? "Đang Loop..." : "Loop câu"}
+                            <span>{isLoopingThis ? "Đang Loop..." : "Loop câu"}</span>
                           </button>
                         </div>
                       </div>
 
+                      {/* 2. Dòng văn bản câu: Đen đậm #0F172A, font-weight 600, tiếng Anh 1.125rem, tiếng Trung 1.25rem */}
                       {showTargetText ? (
                         <p
                           className={`${
                             activeLanguage === "zh"
-                              ? "text-lg font-medium tracking-wide"
-                              : "text-base font-medium"
-                          } text-white`}
+                              ? "text-[1.25rem] font-hanzi font-semibold tracking-wide leading-[2.0]"
+                              : "text-[1.125rem] font-semibold text-[#0F172A] dark:text-white leading-[1.6]"
+                          } text-[#0F172A] dark:text-white`}
                         >
                           {seg.text_target}
                         </p>
                       ) : (
                         <p className="text-xs italic text-slate-500">
-                          [Đã ẩn lớp văn bản gốc để luyện phản xạ tai nghe]
+                          [Đã ẩn văn bản gốc để luyện phản xạ tai nghe]
                         </p>
                       )}
 
-                      {showPhonetic && (
-                        <p className="text-xs font-mono text-sky-300 mt-1">
-                          {seg.phonetic}
-                        </p>
+                      {/* 2. Dòng Pinyin / Phiên âm IPA theo tiêu chuẩn Cambridge / Elsa Speak */}
+                      {showPhonetic && seg.phonetic && (
+                        <div className="mt-1.5">
+                          {activeLanguage === "en" ? (
+                            <IpaBadge phonetic={seg.phonetic} language="en" />
+                          ) : (
+                            <p className="text-xs font-mono font-medium text-[#0F766E] dark:text-teal-400">
+                              {seg.phonetic}
+                            </p>
+                          )}
+                        </div>
                       )}
 
+                      {/* 2. Dòng Hán-Việt: Màu nâu hổ phách đậm #B45309 (amber-700), font-weight 500 */}
                       {activeLanguage === "zh" &&
                         showSinoVi &&
                         seg.sino_vietnamese && (
-                          <p className="text-xs text-amber-300/90 mt-1">
-                            <span className="font-semibold">Hán-Việt:</span>{" "}
+                          <p className="text-xs font-medium text-[#B45309] dark:text-amber-400 mt-1">
+                            <span className="font-semibold text-stone-500">Hán-Việt:</span>{" "}
                             {seg.sino_vietnamese}
                           </p>
                         )}
 
+                      {/* 2. Dòng Nghĩa Việt: Màu #1E293B rõ nét */}
                       {showViTranslation && (
-                        <p className="text-xs text-slate-300 mt-1">
+                        <p className="text-xs text-[#1E293B] dark:text-slate-200 mt-1 leading-relaxed">
                           {seg.translation_vi}
                         </p>
                       )}
 
-                      <div className="mt-2.5 pt-2 border-t border-slate-800/70 flex items-start gap-2 text-[11px] text-indigo-300">
-                        <Sparkles className="w-3.5 h-3.5 text-indigo-400 shrink-0 mt-0.5" />
-                        <span>
-                          <strong>Ghi chú ngữ âm:</strong> {seg.acoustic_note_vi}
+                      {/* 2. Khung "Ghi chú ngữ âm": Nền #FFFBEB, viền #FDE68A, chữ nâu đậm #92400E sắc nét không bị lóa */}
+                      <div className="mt-2.5 pt-2 border-t border-stone-200/80 dark:border-slate-800 flex items-start gap-2 bg-[#FFFBEB] dark:bg-amber-950/20 p-2.5 rounded-md border border-[#FDE68A] dark:border-amber-800/40 text-xs">
+                        <Info className="w-3.5 h-3.5 text-[#92400E] dark:text-amber-400 shrink-0 mt-0.5" />
+                        <span className="text-[#92400E] dark:text-amber-200 leading-relaxed min-w-0 flex-1 break-words">
+                          <strong className="font-bold text-[#92400E] dark:text-amber-300">Ghi chú ngữ âm:</strong>{" "}
+                          {seg.acoustic_note_vi?.replace(/[‿⁀_]+/g, " ")}
                         </span>
                       </div>
                     </div>
@@ -435,34 +468,35 @@ export default function ListeningLabPage() {
             </div>
           </div>
 
-          {/* Right 5 Columns: Dictation Fill-in-the-blanks, Discrimination Quiz & AI Acoustic Diagnostic */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="rounded-2xl bg-slate-900/90 border border-slate-800 p-5 space-y-5">
-              <div className="flex items-center justify-between">
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-emerald-400" />
-                  Bài tập Nghe Chép Chính Tả & Phân Biệt Âm
+          {/* Right 5 Columns: 3. Đồng bộ cột bên phải (Trắc nghiệm & Điền từ) */}
+          <div className="lg:col-span-5 space-y-5">
+            <div className="rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 p-5 space-y-5 shadow-none">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200/90 dark:border-slate-800 pb-3">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-[#0F766E] shrink-0" />
+                  <span>Bài tập Nghe & Điền từ</span>
                 </h3>
                 <button
+                  type="button"
                   onClick={handleAutoFillDemo}
-                  className="text-xs px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-indigo-300 font-medium transition"
+                  className="text-xs px-2.5 py-1 rounded-md bg-stone-100 hover:bg-stone-200 dark:bg-slate-800 text-[#0F766E] dark:text-teal-300 font-semibold transition border border-stone-200/80 dark:border-slate-700 shrink-0"
                 >
-                  Điền nhanh đáp án mẫu
+                  Điền nhanh mẫu
                 </button>
               </div>
 
               {/* Part 1: Dictation Blanks */}
               <div className="space-y-3">
-                <div className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
-                  1. Nghe chép chính tả (Fill in the Blanks)
+                <div className="text-xs font-bold uppercase tracking-wider text-[#0F766E] dark:text-teal-400">
+                  1. Nghe và điền từ còn thiếu vào ô trống
                 </div>
                 {selectedTrack.dictation_blanks.map((blank, idx) => (
                   <div
                     key={blank.blank_id}
-                    className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2"
+                    className="p-3.5 rounded-lg bg-[#FAF9F5]/80 dark:bg-slate-950/70 border border-stone-200 dark:border-slate-800 space-y-2"
                   >
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      <span className="font-bold text-slate-400 mr-1">
+                    <p className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed">
+                      <span className="font-bold text-stone-500 mr-1">
                         #{idx + 1}:
                       </span>
                       {blank.sentence_prefix}
@@ -475,15 +509,21 @@ export default function ListeningLabPage() {
                             [blank.blank_id]: e.target.value,
                           }))
                         }
-                        placeholder={blank.phonetic_hint}
-                        className="mx-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-indigo-500/40 text-white text-xs font-semibold focus:outline-none focus:border-indigo-400 w-36"
+                        placeholder={blank.phonetic_hint?.replace(/[‿⁀_]+/g, " ")}
+                        className="mx-1.5 my-0.5 px-2.5 py-1 rounded-md bg-white dark:bg-slate-900 border border-[#CBD5E1] dark:border-slate-700 text-[#0F172A] dark:text-white text-xs font-semibold focus:outline-none focus:border-[#0F766E] min-w-[9rem] sm:min-w-[11rem] max-w-full"
                       />
                       {blank.sentence_suffix}
                     </p>
-                    <div className="text-[11px] text-slate-400">
-                      Gợi ý nghĩa:{" "}
-                      <span className="text-slate-300">{blank.meaning_vi}</span>{" "}
-                      ({blank.phonetic_hint})
+                    <div className="text-[11px] text-[#475569] dark:text-slate-400 flex items-center gap-1.5 flex-wrap">
+                      <span>Gợi ý nghĩa:</span>{" "}
+                      <span className="text-slate-800 dark:text-slate-200 font-medium">
+                        {blank.meaning_vi}
+                      </span>{" "}
+                      {activeLanguage === "en" ? (
+                        <IpaBadge phonetic={blank.phonetic_hint} language="en" size="sm" />
+                      ) : (
+                        <span>({blank.phonetic_hint})</span>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -491,17 +531,19 @@ export default function ListeningLabPage() {
 
               {/* Part 2: Tone/Phoneme & Comprehension Quiz */}
               <div className="space-y-3">
-                <div className="text-xs font-semibold uppercase tracking-wider text-sky-400">
+                {/* 3. Tiêu đề: Đổi sang màu #0F766E đậm để sắc nét hơn */}
+                <div className="text-xs font-bold uppercase tracking-wider text-[#0F766E] dark:text-teal-400">
                   2. Trắc nghiệm Đọc hiểu Nghe & Phân biệt Thanh điệu / Nối âm
                 </div>
                 {selectedTrack.quiz_questions.map((q, idx) => (
                   <div
                     key={q.question_id}
-                    className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2.5"
+                    className="p-3.5 rounded-lg bg-[#FAF9F5]/80 dark:bg-slate-950/70 border border-stone-200 dark:border-slate-800 space-y-2.5"
                   >
-                    <div className="text-xs font-semibold text-white">
+                    <div className="text-xs font-semibold text-slate-900 dark:text-white">
                       Câu {idx + 1}: {q.prompt}
                     </div>
+                    {/* 3. Các ô đáp án: Nền #FFFFFF, viền #CBD5E1, chữ #0F172A font-medium */}
                     <div className="space-y-1.5">
                       {q.options.map((opt) => {
                         const chosen = quizAnswers[q.question_id] === opt;
@@ -515,10 +557,10 @@ export default function ListeningLabPage() {
                                 [q.question_id]: opt,
                               }))
                             }
-                            className={`w-full text-left px-3 py-2 rounded-lg text-xs transition border ${
+                            className={`w-full text-left px-3 py-2 rounded-md text-xs transition border ${
                               chosen
-                                ? "bg-indigo-600/25 border-indigo-400 text-white font-semibold"
-                                : "bg-slate-900/70 border-slate-800 text-slate-300 hover:border-slate-700"
+                                ? "bg-[#F0FDF4] dark:bg-teal-950/60 border-[#0F766E] text-[#0F766E] dark:text-teal-200 font-semibold ring-1 ring-[#0F766E]/20"
+                                : "bg-white dark:bg-slate-900 border-[#CBD5E1] dark:border-slate-700 text-[#0F172A] dark:text-slate-100 font-medium hover:border-[#0F766E]"
                             }`}
                           >
                             {opt}
@@ -530,35 +572,36 @@ export default function ListeningLabPage() {
                 ))}
               </div>
 
+              {/* Nút nộp bài */}
               <button
+                type="button"
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-sm transition shadow-lg shadow-emerald-600/20"
+                className="w-full py-2.5 rounded-lg bg-[#0F766E] hover:bg-teal-800 disabled:opacity-50 text-white font-semibold text-xs transition shadow-none"
               >
                 {submitting
-                  ? "Đang phân tích ngữ âm..."
-                  : "Chấm điểm & Chẩn đoán lý do nghe sai (AI Acoustic Diagnostic)"}
+                  ? "Đang phân tích bài làm..."
+                  : "Chấm điểm & Phân tích lỗi nghe"}
               </button>
             </div>
 
             {/* AI Acoustic Decoding Diagnostic Result */}
             {diagnosticResult && (
-              <div className="rounded-2xl bg-slate-900/95 border border-indigo-500/40 p-5 space-y-4">
-                <div className="flex items-center justify-between">
+              <div className="rounded-xl bg-white dark:bg-slate-900 border border-stone-200 dark:border-slate-800 p-5 space-y-4 shadow-none">
+                <div className="flex items-center justify-between border-b border-stone-200 pb-3">
                   <div>
-                    <span className="text-xs font-semibold text-indigo-400 uppercase">
-                      AI Acoustic Diagnostic Report
+                    <span className="text-xs font-bold text-[#0F766E] dark:text-teal-400 uppercase tracking-wider">
+                      Báo cáo phân tích ngữ âm
                     </span>
-                    <h4 className="text-lg font-bold text-white">
-                      Điểm số: {diagnosticResult.score_percent}% (+
-                      {diagnosticResult.xp_awarded} XP)
+                    <h4 className="text-base font-bold text-slate-900 dark:text-white mt-0.5">
+                      Điểm số: {diagnosticResult.score_percent}% (+{diagnosticResult.xp_awarded} XP)
                     </h4>
                   </div>
                   <div
-                    className={`px-3 py-1 rounded-full text-xs font-bold ${
+                    className={`px-3 py-1 rounded-md text-xs font-bold ${
                       diagnosticResult.score_percent >= 80
-                        ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                        : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                        ? "bg-emerald-50 text-emerald-800 border border-emerald-300"
+                        : "bg-amber-50 text-amber-800 border border-amber-300"
                     }`}
                   >
                     {diagnosticResult.score_percent >= 80
@@ -567,7 +610,7 @@ export default function ListeningLabPage() {
                   </div>
                 </div>
 
-                <p className="text-xs text-slate-200 leading-relaxed bg-slate-950/80 p-3.5 rounded-xl border border-slate-800">
+                <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed bg-[#FAF9F5] dark:bg-slate-950 p-3.5 rounded-lg border border-stone-200 dark:border-slate-800">
                   {diagnosticResult.ai_decoding_summary_vi}
                 </p>
 
@@ -575,28 +618,27 @@ export default function ListeningLabPage() {
                   {diagnosticResult.diagnostics.map((d) => (
                     <div
                       key={d.item_id}
-                      className={`p-3 rounded-xl border text-xs space-y-1 ${
+                      className={`p-3 rounded-lg border text-xs space-y-1.5 ${
                         d.is_correct
-                          ? "bg-emerald-950/30 border-emerald-500/30"
-                          : "bg-rose-950/30 border-rose-500/30"
+                          ? "bg-emerald-50/60 border-emerald-200 text-emerald-900"
+                          : "bg-rose-50/60 border-rose-200 text-rose-900"
                       }`}
                     >
                       <div className="flex items-center justify-between font-semibold">
-                        <span className="flex items-center gap-1.5 text-white">
+                        <span className="flex items-center gap-1.5 text-slate-900">
                           {d.is_correct ? (
-                            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                           ) : (
-                            <AlertTriangle className="w-4 h-4 text-rose-400" />
+                            <AlertTriangle className="w-4 h-4 text-rose-600" />
                           )}
-                          Đáp án của bạn: {d.user_answer}
+                          <span>Đáp án của bạn: <strong>{d.user_answer}</strong></span>
                         </span>
-                        <span className="text-emerald-300">
+                        <span className="text-emerald-700 font-bold">
                           Chuẩn: {d.expected_answer}
                         </span>
                       </div>
-                      <p className="text-slate-300 leading-relaxed">
-                        <strong>Giải thích ngữ âm ({d.skill_tag}):</strong>{" "}
-                        {d.why_misheard_vi}
+                      <p className="text-stone-700 dark:text-slate-300 leading-relaxed">
+                        <strong>Giải thích ({d.skill_tag}):</strong> {d.why_misheard_vi}
                       </p>
                     </div>
                   ))}

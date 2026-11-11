@@ -13,7 +13,7 @@ import {
   MicOff,
   Play,
   Radio,
-  Sparkles,
+  BookOpen,
   Square,
   Volume2,
   Zap,
@@ -30,7 +30,8 @@ import {
   VoiceScenarioPreset,
   VoiceSessionDetail,
 } from "@/types";
-import { cn, speakNativeAudio } from "@/lib/utils";
+import { cn, speakNativeAudio, stopNativeAudio } from "@/lib/utils";
+import { IpaBadge } from "@/components/IpaBadge";
 
 export default function AISpeakingStudioPage() {
   const { activeLanguage, refreshUser } = useApp();
@@ -296,9 +297,7 @@ export default function AISpeakingStudioPage() {
 
   // Barge-in (Instant Interruption < 30ms)
   const handleBargeInInterrupt = () => {
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
+    stopNativeAudio();
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({ type: "client.barge_in" }));
     }
@@ -366,9 +365,7 @@ export default function AISpeakingStudioPage() {
   // Complete Session & Open Post-Session Diagnostic Report
   const handleFinishAndGenerateReport = async () => {
     if (!session) return;
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
+    stopNativeAudio();
     setLoadingReport(true);
     setStudioState("idle");
     try {
@@ -422,54 +419,52 @@ export default function AISpeakingStudioPage() {
   return (
     <div className="space-y-6 pb-16">
       {/* Top Scenario & Mode Control Bar */}
-      <section className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+      <section className="rounded-xl border border-stone-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-6 shadow-none">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-stone-200 dark:border-slate-800 pb-4">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700">
-              <Radio className="h-4 w-4 text-indigo-600" />
-              <span>
-                DEDICATED AI SPEAKING STUDIO • DUAL-PATH VOICE ARCHITECTURE
-              </span>
+            <div className="inline-flex items-center gap-2 rounded-md border border-teal-600/25 bg-teal-50 dark:bg-teal-950/40 px-2.5 py-0.5 text-xs font-semibold text-[#0F766E] dark:text-teal-400">
+              <Radio className="h-3.5 w-3.5 text-[#0F766E] dark:text-teal-400" />
+              <span>Giao tiếp phản xạ trực tiếp</span>
             </div>
-            <h1 className="mt-1.5 text-2xl font-bold text-slate-900">
-              AI Voice Tutor (
+            <h1 className="mt-2 text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
               {activeLanguage === "zh"
-                ? "中文普通话 • HSK 3.0 / 2.0 & HSKK"
-                : "English • CEFR / IELTS / TOEIC"}
-              )
+                ? "Luyện nói phản xạ Tiếng Trung cùng AI"
+                : "Luyện nói phản xạ Tiếng Anh cùng AI"}
             </h1>
+            <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-slate-400">
+              {activeLanguage === "zh"
+                ? "Thực hành đối thoại theo chủ đề thực tế, nghe giọng chuẩn Bắc Kinh và nhận phản hồi sửa lỗi tức thì."
+                : "Luyện phát âm, ngữ điệu và ngữ pháp trong các tình huống hội thoại thực tế cùng trợ lý AI."}
+            </p>
           </div>
 
-          {/* Connection & Active Memory Badge */}
+          {/* Connection Status & Mistake Badge */}
           <div className="flex flex-wrap items-center gap-2">
             <span
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold",
+                "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold border",
                 wsConnected
-                  ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-500/20"
-                  : "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-500/20"
+                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                  : "border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950 text-stone-600 dark:text-slate-400"
               )}
             >
               <span
                 className={cn(
                   "h-2 w-2 rounded-full",
-                  wsConnected ? "bg-emerald-500" : "bg-indigo-500"
+                  wsConnected ? "bg-emerald-500 animate-pulse" : "bg-stone-400"
                 )}
               />
-              {wsConnected
-                ? "WebSocket Realtime Connected"
-                : "Dual-Path Engine Ready"}
+              {wsConnected ? "Đang kết nối trực tiếp" : "Sẵn sàng trò chuyện"}
             </span>
 
             <button
               type="button"
               onClick={() => setShowMemoryPrompt((v) => !v)}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900 hover:bg-amber-100"
+              className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-400 hover:bg-amber-500/20 transition"
             >
-              <BrainCircuit className="h-3.5 w-3.5 text-amber-600" />
+              <BrainCircuit className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
               <span>
-                Active Mistake Memory ({session?.injected_mistake_ids.length ?? 0}{" "}
-                lỗi nạp sẵn)
+                Lỗi cần chú ý ({session?.injected_mistake_ids.length ?? 0})
               </span>
             </button>
           </div>
@@ -478,13 +473,13 @@ export default function AISpeakingStudioPage() {
         {/* Mode, Scenario & Speed Controls */}
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-12">
           <div className="md:col-span-7">
-            <label className="block text-xs font-bold text-slate-600">
-              Chọn Chế độ Luyện nói &amp; Tình huống (6 Speaking Modes):
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+              Chọn tình huống giao tiếp:
             </label>
             <select
               value={selectedScenarioId}
               onChange={(e) => setSelectedScenarioId(e.target.value)}
-              className="mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:border-indigo-600 focus:outline-none"
+              className="mt-1.5 w-full rounded-lg border border-stone-200 dark:border-slate-800 bg-stone-50/50 dark:bg-slate-950 px-3.5 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 focus:border-[#0F766E] focus:outline-none focus:ring-1 focus:ring-[#0F766E]"
             >
               {scenarios.map((s) => (
                 <option key={s.scenario_id} value={s.scenario_id}>
@@ -495,7 +490,7 @@ export default function AISpeakingStudioPage() {
           </div>
 
           <div className="md:col-span-3">
-            <label className="block text-xs font-bold text-slate-600">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
               Tốc độ giọng nói AI ({speechSpeed}x):
             </label>
             <div className="mt-1.5 flex items-center gap-1.5">
@@ -505,10 +500,10 @@ export default function AISpeakingStudioPage() {
                   type="button"
                   onClick={() => setSpeechSpeed(spd)}
                   className={cn(
-                    "flex-1 rounded-xl border py-2 text-xs font-bold transition",
+                    "flex-1 rounded-md border py-1.5 text-xs font-bold transition",
                     speechSpeed === spd
-                      ? "border-indigo-600 bg-indigo-600 text-white"
-                      : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                      ? "border-[#0F766E] bg-[#0F766E] text-white shadow-none"
+                      : "border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950/60 text-slate-600 dark:text-slate-400 hover:border-stone-300 hover:text-slate-800 dark:hover:text-slate-200"
                   )}
                 >
                   {spd}x
@@ -521,7 +516,7 @@ export default function AISpeakingStudioPage() {
             <button
               type="button"
               onClick={() => void handleStartNewSession()}
-              className="w-full rounded-xl border border-slate-200 bg-slate-900 py-2.5 text-xs font-bold text-white transition hover:bg-slate-800"
+              className="w-full rounded-lg border border-stone-200 dark:border-slate-700 bg-stone-50 hover:bg-stone-100 dark:bg-slate-800/80 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 transition"
             >
               Làm mới Phiên
             </button>
@@ -530,12 +525,11 @@ export default function AISpeakingStudioPage() {
 
         {/* Active Mistake Memory Injection Inspector Drawer */}
         {showMemoryPrompt && session && (
-          <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50/80 p-4 text-xs text-amber-950">
-            <div className="font-bold uppercase tracking-wide text-amber-800">
-              🧠 Active Memory Injection (Nạp tự động từ bảng{" "}
-              <code>learning_mistakes</code> vào System Prompt):
+          <div className="mt-4 rounded-2xl border border-amber-500/30 bg-amber-950/30 p-4 text-xs text-amber-200">
+            <div className="font-bold uppercase tracking-wider text-amber-300">
+              🧠 Active Mistake Injection:
             </div>
-            <pre className="mt-2 whitespace-pre-wrap rounded-xl bg-white/90 p-3 font-mono text-[11px] text-slate-800">
+            <pre className="mt-2 whitespace-pre-wrap rounded-xl border border-slate-800 bg-slate-950/90 p-3 font-mono text-[11px] text-slate-300">
               {session.active_memory_prompt}
             </pre>
           </div>
@@ -546,7 +540,7 @@ export default function AISpeakingStudioPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         {/* Left 6 cols: Voice Studio Stage */}
         <div className="space-y-6 lg:col-span-6">
-          <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 p-6 text-white shadow-lg">
+          <div className="relative overflow-hidden rounded-xl border border-stone-200 dark:border-slate-800 bg-slate-900 p-6 text-white shadow-none">
             {/* 4-State Status Pill */}
             <div className="flex flex-col items-center text-center">
               <div
@@ -569,12 +563,12 @@ export default function AISpeakingStudioPage() {
                 className={cn(
                   "relative flex h-28 w-28 items-center justify-center rounded-full border-2 transition-all duration-300",
                   studioState === "speaking"
-                    ? "scale-105 border-emerald-400 bg-emerald-500/20 shadow-[0_0_45px_rgba(16,185,129,0.45)]"
+                    ? "scale-105 border-emerald-400 bg-emerald-500/20 shadow-[0_0_35px_rgba(16,185,129,0.35)]"
                     : studioState === "listening"
-                      ? "scale-105 border-rose-400 bg-rose-500/20 shadow-[0_0_45px_rgba(244,63,94,0.45)]"
+                      ? "scale-105 border-rose-400 bg-rose-500/20 shadow-[0_0_35px_rgba(244,63,94,0.35)]"
                       : studioState === "processing"
                         ? "border-amber-400 bg-amber-500/20 animate-pulse"
-                        : "border-indigo-400/60 bg-indigo-500/15"
+                        : "border-teal-400/60 bg-teal-500/15"
                 )}
               >
                 <span className="text-4xl">
@@ -584,7 +578,7 @@ export default function AISpeakingStudioPage() {
               <div className="mt-3 text-sm font-bold text-white">
                 {session?.scenario_title || "AI Native Voice Tutor"}
               </div>
-              <div className="text-xs text-indigo-200">
+              <div className="text-xs text-teal-200">
                 {session?.target_level} • Implicit Recasting Active
               </div>
             </div>
@@ -605,7 +599,7 @@ export default function AISpeakingStudioPage() {
                         ? "bg-emerald-400"
                         : studioState === "processing"
                           ? "bg-amber-400"
-                          : "bg-indigo-400/40"
+                          : "bg-teal-400/40"
                   )}
                   style={{ height: `${heightPct}%` }}
                 />
@@ -618,10 +612,10 @@ export default function AISpeakingStudioPage() {
                 type="button"
                 onClick={handleToggleMicrophone}
                 className={cn(
-                  "inline-flex items-center gap-2 rounded-2xl px-6 py-3.5 text-xs font-extrabold shadow-md transition-all active:scale-95",
+                  "inline-flex items-center gap-2 rounded-lg px-6 py-3 text-xs font-bold transition-all active:scale-95 shadow-none",
                   studioState === "listening"
                     ? "bg-rose-600 text-white hover:bg-rose-500"
-                    : "bg-indigo-600 text-white hover:bg-indigo-500"
+                    : "bg-[#0F766E] text-white hover:bg-teal-800"
                 )}
               >
                 {studioState === "listening" ? (
@@ -640,7 +634,7 @@ export default function AISpeakingStudioPage() {
               <button
                 type="button"
                 onClick={handleBargeInInterrupt}
-                className="inline-flex items-center gap-1.5 rounded-2xl border border-amber-400/40 bg-amber-500/20 px-4 py-3.5 text-xs font-bold text-amber-200 transition hover:bg-amber-500/30"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-amber-400/40 bg-amber-500/20 px-4 py-3 text-xs font-bold text-amber-200 transition hover:bg-amber-500/30 shadow-none"
                 title="Ngắt lời AI ngay lập tức (<30ms) để nói xen vào"
               >
                 <Zap className="h-4 w-4 text-amber-300" />
@@ -651,7 +645,7 @@ export default function AISpeakingStudioPage() {
                 type="button"
                 disabled={loadingReport}
                 onClick={() => void handleFinishAndGenerateReport()}
-                className="inline-flex items-center gap-1.5 rounded-2xl border border-emerald-400/40 bg-emerald-500/20 px-4 py-3.5 text-xs font-bold text-emerald-200 transition hover:bg-emerald-500/30"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-400/40 bg-emerald-500/20 px-4 py-3 text-xs font-bold text-emerald-200 transition hover:bg-emerald-500/30 shadow-none"
               >
                 <Square className="h-3.5 w-3.5 fill-current" />
                 <span>
@@ -663,16 +657,16 @@ export default function AISpeakingStudioPage() {
             </div>
           </div>
 
-          {/* 1-Click Simulated Voice Utterances (Test Dual-Path & Implicit Recasting instantly) */}
+          {/* 1-Click Simulated Voice Utterances */}
           {session && session.sample_utterances.length > 0 && (
-            <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm">
+            <div className="rounded-xl border border-stone-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-none">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-700">
-                  🎙️ Giả lập phát âm nhanh (Test Dual-Path: Path A Recasting + Path B Acoustic Grader)
+                <span className="text-xs font-bold uppercase tracking-wider text-[#0F766E] dark:text-teal-400">
+                  🎙️ Giọng nói Mẫu (Dual-Path & Recasting)
                 </span>
               </div>
-              <p className="mt-1 text-xs text-slate-500">
-                Ngoài việc nói trực tiếp vào Microphone, bạn có thể nhấn các câu nói mẫu dưới đây để kiểm nghiệm cách AI sửa lỗi ngầm và chấm thanh điệu/IPA:
+              <p className="mt-1 text-xs text-stone-500 dark:text-slate-400">
+                Nhấn câu mẫu để kiểm tra cơ chế sửa lỗi ngầm và chấm điểm âm vị/thanh điệu:
               </p>
 
               <div className="mt-3 space-y-2.5">
@@ -681,21 +675,29 @@ export default function AISpeakingStudioPage() {
                     key={idx}
                     type="button"
                     onClick={() => void submitSpokenUtterance(sample.spoken_text)}
-                    className="w-full rounded-2xl border border-slate-200 bg-slate-50/80 p-3.5 text-left transition hover:border-indigo-400 hover:bg-indigo-50/40"
+                    className="w-full rounded-lg border border-stone-200 dark:border-slate-800 bg-stone-50 hover:bg-stone-100 dark:bg-slate-950/60 dark:hover:bg-slate-900 p-3.5 text-left transition"
                   >
-                    <div className="flex items-center justify-between text-xs font-bold text-indigo-700">
+                    <div className="flex items-center justify-between text-xs font-bold text-[#0F766E] dark:text-teal-400">
                       <span>{sample.label_vi}</span>
-                      <span className="inline-flex items-center gap-1 rounded-lg bg-indigo-600 px-2.5 py-0.5 text-[10px] text-white">
-                        <Play className="h-2.5 w-2.5 fill-white" /> Gửi giọng nói
+                      <span className="inline-flex items-center gap-1 rounded-md bg-[#0F766E] px-2 py-0.5 text-[10px] text-white shadow-none">
+                        <Play className="h-2.5 w-2.5 fill-white" /> Thử nói
                       </span>
                     </div>
-                    <div className="mt-1 text-sm font-bold text-slate-900">
+                    <div className={`mt-1 font-bold text-slate-900 dark:text-white ${activeLanguage === "zh" ? "text-sm font-hanzi" : "text-base leading-snug"}`}>
                       &ldquo;{sample.spoken_text}&rdquo;
                     </div>
-                    <div className="mt-0.5 text-xs font-medium text-slate-500">
-                      {sample.phonetic_hint}
-                    </div>
-                    <div className="mt-1 text-[11px] text-slate-400">
+                    {sample.phonetic_hint && (
+                      <div className="mt-1">
+                        {activeLanguage === "en" ? (
+                          <IpaBadge phonetic={sample.phonetic_hint} language="en" size="sm" />
+                        ) : (
+                          <div className="text-xs font-medium text-stone-500 dark:text-slate-400">
+                            {sample.phonetic_hint}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    <div className="mt-1 text-[11px] text-stone-500 dark:text-slate-500">
                       💡 {sample.simulated_audio_note}
                     </div>
                   </button>
@@ -706,33 +708,33 @@ export default function AISpeakingStudioPage() {
 
           {/* IELTS Part 2 / HSKK Cue Card with 60s Prep Timer */}
           {session?.cue_card && (
-            <div className="rounded-3xl border border-amber-200 bg-amber-50/70 p-5 shadow-sm">
+            <div className="rounded-xl border border-amber-500/30 bg-amber-50 dark:bg-amber-950/30 p-5 shadow-none">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="rounded-lg bg-amber-200/80 px-2.5 py-1 text-xs font-extrabold text-amber-950">
-                  📋 EXAM CUE CARD PROMPT
+                <span className="rounded-md border border-amber-500/30 bg-amber-100 dark:bg-amber-950/60 px-2.5 py-1 text-xs font-bold text-amber-800 dark:text-amber-300">
+                  📋 CUE CARD PROMPT
                 </span>
                 <button
                   type="button"
                   onClick={() => setPrepCountdown(session.cue_card?.prep_time_seconds ?? 60)}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-amber-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-500"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-500 shadow-none transition"
                 >
                   <Clock className="h-3.5 w-3.5" />
                   <span>
                     {prepCountdown !== null && prepCountdown > 0
-                      ? `Đang chuẩn bị: ${prepCountdown}s`
-                      : `Bắt đầu 1 phút chuẩn bị (${session.cue_card.prep_time_seconds}s)`}
+                      ? `Chuẩn bị: ${prepCountdown}s`
+                      : `Chuẩn bị 1 phút (${session.cue_card.prep_time_seconds}s)`}
                   </span>
                 </button>
               </div>
-              <h3 className="mt-2.5 text-sm font-bold text-slate-900">
+              <h3 className="mt-2.5 text-sm font-bold text-slate-900 dark:text-white">
                 {session.cue_card.topic_title}
               </h3>
-              <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-slate-700">
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-stone-600 dark:text-slate-300">
                 {session.cue_card.bullet_points.map((bp, i) => (
                   <li key={i}>{bp}</li>
                 ))}
               </ul>
-              <p className="mt-3 text-[11px] italic text-amber-900">
+              <p className="mt-3 text-[11px] italic text-amber-800/80 dark:text-amber-300/80">
                 {session.cue_card.exam_note_vi}
               </p>
             </div>
@@ -742,12 +744,12 @@ export default function AISpeakingStudioPage() {
         {/* Right 6 cols: Live Transcript + Real-time Path B Acoustic/Grammar Analyzer */}
         <div className="space-y-6 lg:col-span-6">
           {/* Live Transcript Panel */}
-          <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+          <div className="rounded-xl border border-stone-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-6 shadow-none">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2">
-                <Eye className="h-4 w-4 text-indigo-600" />
-                <h2 className="text-base font-bold text-slate-900">
-                  Live Transcript &amp; Implicit Recasting Stream
+                <Eye className="h-4 w-4 text-[#0F766E] dark:text-teal-400" />
+                <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                  Live Transcript & Recasting
                 </h2>
               </div>
 
@@ -756,10 +758,10 @@ export default function AISpeakingStudioPage() {
                   type="button"
                   onClick={() => setShowTranscript((v) => !v)}
                   className={cn(
-                    "rounded-lg px-2.5 py-1 text-[11px] font-bold",
+                    "rounded-md px-2.5 py-1 text-[11px] font-bold border transition",
                     showTranscript
-                      ? "bg-slate-900 text-white"
-                      : "bg-slate-100 text-slate-600"
+                      ? "border-stone-300 bg-stone-100 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white"
+                      : "border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950 text-stone-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
                   )}
                 >
                   {showTranscript ? "Ẩn chữ" : "Hiện chữ"}
@@ -768,10 +770,10 @@ export default function AISpeakingStudioPage() {
                   type="button"
                   onClick={() => setShowPhonetic((v) => !v)}
                   className={cn(
-                    "rounded-lg px-2.5 py-1 text-[11px] font-bold",
+                    "rounded-md px-2.5 py-1 text-[11px] font-bold border transition",
                     showPhonetic
-                      ? "bg-indigo-600 text-white"
-                      : "bg-slate-100 text-slate-600"
+                      ? "border-[#0F766E] bg-[#0F766E] text-white shadow-none"
+                      : "border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950 text-stone-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
                   )}
                 >
                   {activeLanguage === "zh" ? "Pinyin" : "IPA"}
@@ -780,10 +782,10 @@ export default function AISpeakingStudioPage() {
                   type="button"
                   onClick={() => setShowTranslationVi((v) => !v)}
                   className={cn(
-                    "rounded-lg px-2.5 py-1 text-[11px] font-bold",
+                    "rounded-md px-2.5 py-1 text-[11px] font-bold border transition",
                     showTranslationVi
-                      ? "bg-emerald-600 text-white"
-                      : "bg-slate-100 text-slate-600"
+                      ? "border-[#0F766E] bg-teal-50 dark:bg-teal-950/60 text-[#0F766E] dark:text-teal-300"
+                      : "border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950 text-stone-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
                   )}
                 >
                   Dịch Việt
@@ -800,20 +802,20 @@ export default function AISpeakingStudioPage() {
                     <div
                       key={msg.id}
                       className={cn(
-                        "rounded-2xl border p-4 text-xs",
+                        "rounded-xl border p-4 text-xs transition",
                         isUser
-                          ? "ml-6 border-indigo-200 bg-indigo-50/70"
-                          : "mr-6 border-slate-200 bg-slate-50"
+                          ? "ml-6 border-teal-600/30 bg-teal-50/60 dark:bg-teal-950/30"
+                          : "mr-6 border-stone-200 dark:border-slate-800 bg-stone-50/70 dark:bg-slate-950/70"
                       )}
                     >
                       <div className="flex items-center justify-between">
                         <span
                           className={cn(
-                            "font-extrabold uppercase",
-                            isUser ? "text-indigo-700" : "text-emerald-700"
+                            "font-extrabold uppercase tracking-wider text-[11px]",
+                            isUser ? "text-[#0F766E] dark:text-teal-400" : "text-emerald-700 dark:text-emerald-400"
                           )}
                         >
-                          {isUser ? "Bạn (Học viên)" : "AI Native Tutor"}
+                          {isUser ? "Bạn (Learner)" : "AI Tutor"}
                         </span>
                         <button
                           type="button"
@@ -824,33 +826,45 @@ export default function AISpeakingStudioPage() {
                               speechSpeed
                             )
                           }
-                          className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-indigo-600 hover:bg-indigo-50"
-                          title="Nghe lại câu này"
+                          className="flex h-7 w-7 items-center justify-center rounded-md border border-stone-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-[#0F766E] dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/30 transition"
+                          title="Nghe lại"
                         >
                           <Volume2 className="h-3.5 w-3.5" />
                         </button>
                       </div>
 
-                      <p className="mt-1.5 text-sm font-bold text-slate-900">
+                      <p
+                        className={`mt-1.5 ${
+                          activeLanguage === "zh"
+                            ? "font-hanzi text-base font-semibold"
+                            : "text-[1.125rem] font-semibold leading-[1.6]"
+                        } text-[#0F172A] dark:text-white`}
+                      >
                         {msg.transcript_text}
                       </p>
 
                       {showPhonetic && msg.phonetic_annotation && (
-                        <p className="mt-1 font-medium text-indigo-600">
-                          {msg.phonetic_annotation}
-                        </p>
+                        <div className="mt-1.5">
+                          {activeLanguage === "en" ? (
+                            <IpaBadge phonetic={msg.phonetic_annotation} language="en" />
+                          ) : (
+                            <p className="font-mono font-medium text-[#0F766E] dark:text-teal-400 text-xs">
+                              {msg.phonetic_annotation}
+                            </p>
+                          )}
+                        </div>
                       )}
 
                       {showTranslationVi && msg.translation_vi && (
-                        <p className="mt-1 text-slate-600">
+                        <p className="mt-1 text-stone-600 dark:text-slate-400">
                           → {msg.translation_vi}
                         </p>
                       )}
 
                       {isUser && hasMistake && (
-                        <div className="mt-2 rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-[11px] text-amber-900">
-                          <strong>🔍 Chẩn đoán ngầm (Path B):</strong> Câu chuẩn bản xứ:{" "}
-                          <span className="font-bold text-emerald-800">
+                        <div className="mt-2 rounded-lg border border-amber-500/30 bg-amber-50 dark:bg-amber-950/40 p-2.5 text-[11px] text-amber-800 dark:text-amber-200">
+                          <strong>🔍 Chẩn đoán (Path B):</strong> Câu chuẩn tự nhiên:{" "}
+                          <span className="font-bold text-teal-800 dark:text-emerald-300">
                             &ldquo;{msg.grammar_feedback.recast_or_corrected_text}&rdquo;
                           </span>
                         </div>
@@ -860,7 +874,7 @@ export default function AISpeakingStudioPage() {
                 })}
               </div>
             ) : (
-              <div className="my-10 text-center text-xs text-slate-400">
+              <div className="my-10 text-center text-xs text-stone-500 dark:text-slate-500">
                 Đang ẩn Live Transcript để luyện phản xạ nghe thuần âm thanh.
               </div>
             )}
@@ -868,37 +882,35 @@ export default function AISpeakingStudioPage() {
 
           {/* Real-Time Path B Acoustic & Linguistic Analyzer Output */}
           {latestPronDiag && latestGramDiag && (
-            <div className="rounded-3xl border border-indigo-200 bg-white p-6 shadow-sm">
+            <div className="rounded-xl border border-stone-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-6 shadow-none">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-extrabold text-indigo-700">
-                  <Sparkles className="h-4 w-4" />
-                  <span>
-                    PATH B: ASYNCHRONOUS PRONUNCIATION / TONE &amp; GRAMMAR ANALYZER
-                  </span>
+                <div className="inline-flex items-center gap-1.5 rounded-md border border-teal-600/25 bg-teal-50 dark:bg-teal-950/60 px-2.5 py-1 text-xs font-bold text-[#0F766E] dark:text-teal-300">
+                  <BookOpen className="h-4 w-4" />
+                  <span>PATH B: REAL-TIME ACOUSTIC & GRAMMAR</span>
                 </div>
-                <span className="rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-extrabold text-emerald-700">
-                  Điểm Phát âm/Thanh điệu: {latestPronDiag.overall_score}%
+                <span className="rounded-md border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                  Phát âm/Thanh điệu: {latestPronDiag.overall_score}%
                 </span>
               </div>
 
               <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
-                <div className="rounded-xl bg-slate-50 p-2.5">
-                  <div className="text-slate-500">Accuracy</div>
-                  <div className="text-sm font-extrabold text-slate-900">
+                <div className="rounded-lg border border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950/80 p-2.5">
+                  <div className="text-stone-500 dark:text-slate-400 text-[11px]">Accuracy</div>
+                  <div className="text-sm font-extrabold text-slate-900 dark:text-white">
                     {latestPronDiag.accuracy_score}%
                   </div>
                 </div>
-                <div className="rounded-xl bg-slate-50 p-2.5">
-                  <div className="text-slate-500">
-                    {activeLanguage === "zh" ? "Tone & Sandhi" : "Prosody & Linking"}
+                <div className="rounded-lg border border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950/80 p-2.5">
+                  <div className="text-stone-500 dark:text-slate-400 text-[11px]">
+                    {activeLanguage === "zh" ? "Tone & Sandhi" : "Prosody"}
                   </div>
-                  <div className="text-sm font-extrabold text-indigo-600">
+                  <div className="text-sm font-extrabold text-[#0F766E] dark:text-teal-400">
                     {latestPronDiag.prosody_or_tone_score}%
                   </div>
                 </div>
-                <div className="rounded-xl bg-slate-50 p-2.5">
-                  <div className="text-slate-500">Fluency Speed</div>
-                  <div className="text-sm font-extrabold text-emerald-700">
+                <div className="rounded-lg border border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950/80 p-2.5">
+                  <div className="text-stone-500 dark:text-slate-400 text-[11px]">Fluency Speed</div>
+                  <div className="text-sm font-extrabold text-emerald-700 dark:text-emerald-400">
                     {latestGramDiag.fluency_wpm} WPM
                   </div>
                 </div>
@@ -909,27 +921,33 @@ export default function AISpeakingStudioPage() {
                 {latestPronDiag.tokens.map((tok, i) => (
                   <div
                     key={i}
-                    className="flex items-start justify-between gap-3 rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 text-xs"
+                    className="flex items-start justify-between gap-3 rounded-lg border border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950/70 p-3 text-xs"
                   >
                     <div>
-                      <div className="font-bold text-slate-900">
-                        {tok.token}{" "}
-                        <span className="font-semibold text-indigo-600">
-                          ({tok.expected_phonetic})
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-slate-900 dark:text-white text-sm">
+                          {tok.token}
                         </span>
+                        {activeLanguage === "en" ? (
+                          <IpaBadge phonetic={tok.expected_phonetic} language="en" size="sm" />
+                        ) : (
+                          <span className="font-mono font-medium text-[#0F766E] dark:text-teal-400 text-xs">
+                            ({tok.expected_phonetic})
+                          </span>
+                        )}
                       </div>
                       {tok.tip_vi && (
-                        <div className="mt-0.5 text-slate-600">
+                        <div className="mt-0.5 text-stone-500 dark:text-slate-400 text-[11px]">
                           💡 {tok.tip_vi}
                         </div>
                       )}
                     </div>
                     <span
                       className={cn(
-                        "shrink-0 rounded-lg px-2 py-0.5 font-extrabold",
+                        "shrink-0 rounded-md px-2 py-0.5 font-bold text-xs border",
                         tok.status === "good"
-                          ? "bg-emerald-100 text-emerald-800"
-                          : "bg-amber-100 text-amber-800"
+                          ? "border-emerald-500/30 bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300"
+                          : "border-amber-500/30 bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300"
                       )}
                     >
                       {tok.accuracy_score}%
@@ -939,22 +957,22 @@ export default function AISpeakingStudioPage() {
               </div>
 
               {/* Grammar & Upgraded Expression Feedback */}
-              <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3.5 text-xs">
+              <div className="mt-3 rounded-lg border border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950/80 p-3.5 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-800">
-                    Chẩn đoán Ngữ pháp &amp; Diễn đạt Nâng cấp:
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                    Chẩn đoán ngữ pháp & diễn đạt:
                   </span>
                   {lastRecordedMistakeTag && (
-                    <span className="rounded-md bg-rose-100 px-2 py-0.5 text-[10px] font-extrabold text-rose-700">
-                      Đã lưu vào learning_mistakes: #{lastRecordedMistakeTag}
+                    <span className="rounded-md border border-rose-500/30 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 text-[10px] font-bold text-rose-700 dark:text-rose-300">
+                      Ghi nhận: #{lastRecordedMistakeTag}
                     </span>
                   )}
                 </div>
-                <p className="mt-1 text-slate-600">
+                <p className="mt-1 text-stone-600 dark:text-slate-400">
                   {latestGramDiag.explanation_vi}
                 </p>
-                <div className="mt-2 rounded-xl bg-white p-2.5 text-emerald-900">
-                  <strong>✨ Gợi ý nâng cấp Band/HSK cao hơn:</strong>{" "}
+                <div className="mt-2 rounded-lg border border-emerald-600/25 bg-emerald-50 dark:bg-emerald-950/40 p-2.5 text-emerald-800 dark:text-emerald-200">
+                  <strong className="text-emerald-700 dark:text-emerald-300">Gợi ý nâng cấp tự nhiên:</strong>{" "}
                   &ldquo;{latestGramDiag.upgraded_native_expression}&rdquo;
                 </div>
               </div>
@@ -965,24 +983,24 @@ export default function AISpeakingStudioPage() {
 
       {/* Post-Session Diagnostic Report Section */}
       {postReport && (
-        <section className="rounded-3xl border-2 border-indigo-500 bg-white p-6 shadow-md sm:p-8">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+        <section className="rounded-xl border border-stone-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-8 shadow-none">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-stone-200 dark:border-slate-800 pb-4">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-1 text-xs font-extrabold text-indigo-700">
+              <div className="inline-flex items-center gap-2 rounded-md border border-teal-600/25 bg-teal-50 dark:bg-teal-950/60 px-3 py-1 text-xs font-bold text-[#0F766E] dark:text-teal-300">
                 <FileBarChart2 className="h-4 w-4" />
-                <span>POST-SESSION DIAGNOSTIC REPORT (BÁO CÁO CHUYÊN SÂU SAU HỘI THOẠI)</span>
+                <span>POST-SESSION DIAGNOSTIC REPORT</span>
               </div>
-              <h2 className="mt-2 text-2xl font-bold text-slate-900">
-                Tổng kết Phiên Luyện nói: {postReport.scenario_title}
+              <h2 className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
+                Tổng kết: {postReport.scenario_title}
               </h2>
-              <p className="mt-1 text-xs text-slate-600">
+              <p className="mt-1 text-xs text-stone-500 dark:text-slate-400 max-w-2xl">
                 {postReport.coach_summary_vi}
               </p>
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-indigo-600 px-5 py-3 text-center text-white">
-                <div className="text-[11px] font-semibold uppercase text-indigo-200">
+              <div className="rounded-xl bg-[#0F766E] px-5 py-3 text-center text-white shadow-none">
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-teal-100">
                   Overall Score
                 </div>
                 <div className="text-2xl font-extrabold">
@@ -994,56 +1012,56 @@ export default function AISpeakingStudioPage() {
 
           {/* 4 Metric Cards */}
           <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div className="text-xs font-semibold text-slate-500">
+            <div className="rounded-xl border border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950/80 p-4">
+              <div className="text-xs font-medium text-stone-500 dark:text-slate-400">
                 {postReport.language_code === "zh"
                   ? "Thanh điệu & Biến điệu"
                   : "Ngữ âm IPA & Nối âm"}
               </div>
-              <div className="mt-1 text-xl font-extrabold text-indigo-600">
+              <div className="mt-1 text-xl font-extrabold text-[#0F766E] dark:text-teal-400">
                 {postReport.pronunciation_or_tone_score}%
               </div>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div className="text-xs font-semibold text-slate-500">
+            <div className="rounded-xl border border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950/80 p-4">
+              <div className="text-xs font-medium text-stone-500 dark:text-slate-400">
                 Độ chính xác Ngữ pháp
               </div>
-              <div className="mt-1 text-xl font-extrabold text-emerald-700">
+              <div className="mt-1 text-xl font-extrabold text-emerald-700 dark:text-emerald-400">
                 {postReport.grammar_accuracy_score}%
               </div>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div className="text-xs font-semibold text-slate-500">
+            <div className="rounded-xl border border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950/80 p-4">
+              <div className="text-xs font-medium text-stone-500 dark:text-slate-400">
                 Tốc độ nói (Fluency)
               </div>
-              <div className="mt-1 text-xl font-extrabold text-slate-900">
+              <div className="mt-1 text-xl font-extrabold text-slate-900 dark:text-white">
                 {postReport.fluency_wpm} WPM
               </div>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div className="text-xs font-semibold text-slate-500">
-                Độ ngập ngừng (Hesitation)
+            <div className="rounded-xl border border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-950/80 p-4">
+              <div className="text-xs font-medium text-stone-500 dark:text-slate-400">
+                Độ ngập ngừng
               </div>
-              <div className="mt-1 text-sm font-extrabold text-slate-800">
+              <div className="mt-1 text-sm font-extrabold text-slate-700 dark:text-slate-200">
                 {postReport.hesitation_rate_label}
               </div>
             </div>
           </div>
 
           {/* Official Rubric Breakdown (IELTS 4 Criteria or HSKK) */}
-          <div className="mt-6 rounded-2xl border border-indigo-100 bg-indigo-50/50 p-4">
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-indigo-950">
-              Bảng Đánh giá Theo Tiêu chí Chuẩn (Exam Rubric Breakdown):
+          <div className="mt-6 rounded-xl border border-stone-200 dark:border-slate-800 bg-stone-50/60 dark:bg-slate-950/60 p-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#0F766E] dark:text-teal-400">
+              Tiêu chí Chuẩn (Exam Rubric Breakdown):
             </h3>
-            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <div className="mt-2.5 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
               {Object.entries(postReport.exam_rubric_breakdown).map(
                 ([k, val]) => (
                   <div
                     key={k}
-                    className="rounded-xl bg-white p-3 text-xs shadow-sm"
+                    className="rounded-lg border border-stone-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-3 text-xs"
                   >
-                    <div className="font-semibold text-slate-500">{k}</div>
-                    <div className="mt-0.5 font-extrabold text-slate-900">
+                    <div className="font-medium text-stone-500 dark:text-slate-400">{k}</div>
+                    <div className="mt-0.5 font-bold text-slate-900 dark:text-white">
                       {val}
                     </div>
                   </div>
@@ -1055,54 +1073,53 @@ export default function AISpeakingStudioPage() {
           {/* Grammar & Vocabulary Comparison List */}
           {postReport.grammar_and_vocab_corrections.length > 0 && (
             <div className="mt-6 space-y-3">
-              <h3 className="text-sm font-bold text-slate-900">
-                So sánh Câu gốc của bạn vs. Câu sửa tự nhiên &amp; Bản nâng cấp:
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                So sánh Câu nói & Phiên bản Tự nhiên / Nâng cấp:
               </h3>
               {postReport.grammar_and_vocab_corrections.map((item, i) => (
                 <div
                   key={i}
-                  className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs"
+                  className="rounded-xl border border-stone-200 dark:border-slate-800 bg-stone-50/70 dark:bg-slate-950/70 p-4 text-xs"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-700">
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">
                       Lượt nói #{i + 1}
                     </span>
                     {item.has_mistake ? (
-                      <span className="inline-flex items-center gap-1 rounded-md bg-rose-100 px-2 py-0.5 font-bold text-rose-700">
-                        <AlertTriangle className="h-3.5 w-3.5" /> Cần lưu ý (#
-                        {item.category_tag})
+                      <span className="inline-flex items-center gap-1 rounded-md border border-rose-500/30 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 font-bold text-rose-700 dark:text-rose-300">
+                        <AlertTriangle className="h-3.5 w-3.5" /> Lưu ý (#{item.category_tag})
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 rounded-md bg-emerald-100 px-2 py-0.5 font-bold text-emerald-700">
+                      <span className="inline-flex items-center gap-1 rounded-md border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 font-bold text-emerald-700 dark:text-emerald-300">
                         <CheckCircle2 className="h-3.5 w-3.5" /> Chuẩn xác
                       </span>
                     )}
                   </div>
-                  <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    <div className="rounded-xl bg-white p-2.5">
-                      <span className="font-bold text-slate-500">Bạn nói: </span>
-                      <span className="font-semibold text-slate-900">
+                  <div className="mt-2.5 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    <div className="rounded-lg border border-stone-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-2.5">
+                      <span className="font-medium text-stone-500 dark:text-slate-400">Bạn nói: </span>
+                      <span className="font-semibold text-slate-900 dark:text-white">
                         {item.original_text}
                       </span>
                     </div>
-                    <div className="rounded-xl bg-emerald-50 p-2.5 text-emerald-950">
-                      <span className="font-bold">Câu chuẩn / Nâng cấp: </span>
+                    <div className="rounded-lg border border-emerald-600/25 bg-emerald-50 dark:bg-emerald-950/40 p-2.5 text-emerald-800 dark:text-emerald-200">
+                      <span className="font-medium text-emerald-700 dark:text-emerald-400">Nâng cấp tự nhiên: </span>
                       <span className="font-semibold">
                         {item.upgraded_native_expression ||
                           item.recast_or_corrected_text}
                       </span>
                     </div>
                   </div>
-                  <p className="mt-2 text-slate-600">💡 {item.explanation_vi}</p>
+                  <p className="mt-2 text-stone-600 dark:text-slate-400">💡 {item.explanation_vi}</p>
                 </div>
               ))}
             </div>
           )}
 
           {/* Suggested Expressions & 1-Click Save to FSRS */}
-          <div className="mt-6 border-t border-slate-100 pt-5">
-            <h3 className="text-sm font-bold text-slate-900">
-              Từ vựng &amp; Cách diễn đạt Tự nhiên Gợi ý (Lưu 1-click vào kho ôn tập FSRS):
+          <div className="mt-6 border-t border-stone-200 dark:border-slate-800 pt-5">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+              Từ vựng & Cách diễn đạt đề xuất (Lưu vào FSRS):
             </h3>
             <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
               {postReport.suggested_vocabulary.map((card) => {
@@ -1110,19 +1127,23 @@ export default function AISpeakingStudioPage() {
                 return (
                   <div
                     key={card.term}
-                    className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-slate-50/70 p-4"
+                    className="flex flex-col justify-between rounded-xl border border-stone-200 dark:border-slate-800 bg-white dark:bg-slate-950/70 p-4 shadow-none"
                   >
                     <div>
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-base font-extrabold text-slate-900">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-base font-bold font-hanzi text-slate-900 dark:text-white">
                             {card.term}
                           </span>
-                          <span className="text-xs font-bold text-indigo-600">
-                            {card.phonetic}
-                          </span>
+                          {activeLanguage === "en" ? (
+                            <IpaBadge phonetic={card.phonetic} language="en" size="sm" />
+                          ) : (
+                            <span className="text-xs font-mono font-medium text-[#0F766E] dark:text-teal-400">
+                              {card.phonetic}
+                            </span>
+                          )}
                           {card.sino_vietnamese && (
-                            <span className="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+                            <span className="rounded border border-amber-500/30 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300">
                               Hán-Việt: {card.sino_vietnamese}
                             </span>
                           )}
@@ -1135,22 +1156,22 @@ export default function AISpeakingStudioPage() {
                               postReport.language_code
                             )
                           }
-                          className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-indigo-600"
+                          className="flex h-8 w-8 items-center justify-center rounded-md border border-stone-200 dark:border-slate-800 bg-stone-50 dark:bg-slate-900 text-[#0F766E] dark:text-teal-400 hover:bg-stone-100 transition"
                         >
                           <Volume2 className="h-4 w-4" />
                         </button>
                       </div>
-                      <p className="mt-1 text-xs font-bold text-slate-800">
+                      <p className="mt-1 text-xs font-semibold text-slate-800 dark:text-slate-200">
                         {card.meaning_vi} ({card.meaning_en})
                       </p>
-                      <p className="mt-1 text-xs italic text-slate-500">
+                      <p className="mt-1 text-xs italic text-stone-500 dark:text-slate-400">
                         &ldquo;{card.example_target}&rdquo; — {card.example_vi}
                       </p>
                     </div>
 
                     <div className="mt-3 pt-2">
                       {savedMsg ? (
-                        <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700">
+                        <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
                           <CheckCircle2 className="h-4 w-4" />
                           <span>{savedMsg}</span>
                         </div>
@@ -1158,10 +1179,10 @@ export default function AISpeakingStudioPage() {
                         <button
                           type="button"
                           onClick={() => void handleSaveSuggestedVocab(card)}
-                          className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm hover:bg-indigo-500"
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-[#0F766E] hover:bg-teal-800 px-3.5 py-2 text-xs font-bold text-white shadow-none transition"
                         >
                           <BookmarkPlus className="h-3.5 w-3.5" />
-                          <span>Lưu vào Hàng đợi Ôn tập FSRS</span>
+                          <span>Lưu vào Hàng đợi FSRS</span>
                         </button>
                       )}
                     </div>

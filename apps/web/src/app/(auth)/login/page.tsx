@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Sparkles, UserCheck } from "lucide-react";
+import { ArrowLeft, BookOpen, UserCheck } from "lucide-react";
 import { apiClient } from "@/lib/api";
 import { useApp } from "@/context/app-context";
 import { LanguageCode } from "@/types";
@@ -59,39 +59,39 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
-      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+    <div className="relative flex min-h-screen items-center justify-center bg-[#FAF9F5] dark:bg-slate-950 p-6 text-slate-800 dark:text-slate-100 antialiased">
+      <div className="relative w-full max-w-md rounded-xl border border-stone-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-7 shadow-sm">
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:underline"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 dark:text-slate-400 transition hover:text-[#0F766E] dark:hover:text-teal-400"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Về Dashboard</span>
         </Link>
 
         <div className="mt-4 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white">
-            <Sparkles className="h-5 w-5" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#0F766E] text-white shadow-none">
+            <BookOpen className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900">
+            <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
               LinguaAI Account
             </h1>
-            <p className="text-xs text-slate-500">
-              JWT Authentication • Bilingual Profile (EN &amp; ZH)
+            <p className="text-xs text-stone-500 dark:text-slate-400">
+              Song ngữ EN & ZH • Nền tảng học thông minh
             </p>
           </div>
         </div>
 
         {/* Mode Tabs */}
-        <div className="mt-6 grid grid-cols-2 rounded-xl bg-slate-100 p-1 text-xs font-bold">
+        <div className="mt-6 grid grid-cols-2 rounded-lg bg-stone-100 dark:bg-slate-800 p-1 text-xs font-bold border border-stone-200 dark:border-slate-700">
           <button
             type="button"
             onClick={() => setMode("login")}
             className={
               mode === "login"
-                ? "rounded-lg bg-white py-2 text-indigo-700 shadow-sm"
-                : "py-2 text-slate-600"
+                ? "rounded-md bg-white dark:bg-slate-900 py-2 text-[#0F766E] dark:text-teal-400 shadow-sm"
+                : "py-2 text-stone-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition"
             }
           >
             Đăng nhập
@@ -101,16 +101,16 @@ export default function LoginPage() {
             onClick={() => setMode("register")}
             className={
               mode === "register"
-                ? "rounded-lg bg-white py-2 text-indigo-700 shadow-sm"
-                : "py-2 text-slate-600"
+                ? "rounded-md bg-white dark:bg-slate-900 py-2 text-[#0F766E] dark:text-teal-400 shadow-sm"
+                : "py-2 text-stone-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition"
             }
           >
-            Đăng ký học viên mới
+            Đăng ký học viên
           </button>
         </div>
 
         {error && (
-          <div className="mt-4 rounded-xl bg-rose-50 p-3 text-xs font-semibold text-rose-700">
+          <div className="mt-4 rounded-lg border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/40 p-3 text-xs font-medium text-rose-700 dark:text-rose-300">
             {error}
           </div>
         )}
@@ -119,7 +119,7 @@ export default function LoginPage() {
           {mode === "register" && (
             <>
               <div>
-                <label className="block text-xs font-bold text-slate-700">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                   Họ và tên
                 </label>
                 <input
@@ -127,27 +127,27 @@ export default function LoginPage() {
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="mt-1 w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-indigo-600 focus:outline-none"
+                  className="mt-1 w-full rounded-lg border border-stone-200 dark:border-slate-700 bg-stone-50/50 dark:bg-slate-950 px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-stone-400 focus:border-[#0F766E] focus:outline-none focus:ring-1 focus:ring-[#0F766E]"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700">
-                  Ngôn ngữ ưu tiên
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Ngôn ngữ mục tiêu
                 </label>
                 <select
                   value={lang}
                   onChange={(e) => setLang(e.target.value as LanguageCode)}
-                  className="mt-1 w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-indigo-600 focus:outline-none"
+                  className="mt-1 w-full rounded-lg border border-stone-200 dark:border-slate-700 bg-stone-50/50 dark:bg-slate-950 px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:border-[#0F766E] focus:outline-none focus:ring-1 focus:ring-[#0F766E]"
                 >
-                  <option value="zh">🇨🇳 Tiếng Trung (Pinyin &amp; HSK 3.0 / 2.0)</option>
-                  <option value="en">🇬🇧 Tiếng Anh (CEFR A1-C2 / IELTS / TOEIC)</option>
+                  <option value="zh">🇨🇳 Tiếng Trung (Pinyin • HSK 3.0 & 2.0)</option>
+                  <option value="en">🇬🇧 Tiếng Anh (CEFR • IELTS • TOEIC)</option>
                 </select>
               </div>
             </>
           )}
 
           <div>
-            <label className="block text-xs font-bold text-slate-700">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
               Email
             </label>
             <input
@@ -155,12 +155,12 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-indigo-600 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-stone-200 dark:border-slate-700 bg-stone-50/50 dark:bg-slate-950 px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-stone-400 focus:border-[#0F766E] focus:outline-none focus:ring-1 focus:ring-[#0F766E]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
               Mật khẩu
             </label>
             <input
@@ -168,31 +168,31 @@ export default function LoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:border-indigo-600 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-stone-200 dark:border-slate-700 bg-stone-50/50 dark:bg-slate-950 px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-stone-400 focus:border-[#0F766E] focus:outline-none focus:ring-1 focus:ring-[#0F766E]"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-indigo-600 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-500 disabled:opacity-50"
+            className="w-full rounded-lg bg-[#0F766E] hover:bg-teal-800 py-2.5 text-sm font-bold text-white transition shadow-none disabled:opacity-50"
           >
             {loading
               ? "Đang xử lý..."
               : mode === "login"
                 ? "Đăng nhập"
-                : "Tạo tài khoản & Khởi tạo Lộ trình"}
+                : "Tạo tài khoản & Bắt đầu"}
           </button>
         </form>
 
-        <div className="mt-4 border-t border-slate-100 pt-4">
+        <div className="mt-5 border-t border-stone-200 dark:border-slate-800 pt-4">
           <button
             type="button"
             onClick={handleQuickDemo}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 text-xs font-bold text-emerald-800 transition hover:bg-emerald-100"
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-stone-200 dark:border-slate-700 bg-stone-50 hover:bg-stone-100 dark:bg-slate-800/80 dark:hover:bg-slate-800 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition"
           >
-            <UserCheck className="h-4 w-4" />
-            <span>Đăng nhập nhanh Tài khoản Mẫu (learner@lingua.ai)</span>
+            <UserCheck className="h-4 w-4 text-[#0F766E] dark:text-teal-400" />
+            <span>Vào nhanh tài khoản mẫu (Demo Learner)</span>
           </button>
         </div>
       </div>

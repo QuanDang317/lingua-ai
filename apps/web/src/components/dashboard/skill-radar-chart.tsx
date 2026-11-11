@@ -8,19 +8,19 @@ interface SkillRadarChartProps {
 }
 
 export function SkillRadarChart({ metrics }: SkillRadarChartProps) {
-  const size = 290;
+  const size = 280;
   const center = size / 2;
-  const radius = 96;
+  const radius = 90;
   const levels = [25, 50, 75, 100];
 
   const items =
     metrics.length === 6
       ? metrics
       : [
-          { skill: "Listening", label_vi: "Nghe hiểu", score: 72, full_mark: 100 },
-          { skill: "Speaking", label_vi: "Nói & Phát âm", score: 66, full_mark: 100 },
-          { skill: "Reading", label_vi: "Đọc hiểu", score: 78, full_mark: 100 },
-          { skill: "Writing", label_vi: "Viết & Chữ Hán", score: 64, full_mark: 100 },
+          { skill: "Listening", label_vi: "Nghe", score: 72, full_mark: 100 },
+          { skill: "Speaking", label_vi: "Nói", score: 66, full_mark: 100 },
+          { skill: "Reading", label_vi: "Đọc", score: 78, full_mark: 100 },
+          { skill: "Writing", label_vi: "Viết", score: 64, full_mark: 100 },
           { skill: "Vocabulary", label_vi: "Từ vựng", score: 80, full_mark: 100 },
           { skill: "Grammar", label_vi: "Ngữ pháp", score: 70, full_mark: 100 },
         ];
@@ -51,7 +51,7 @@ export function SkillRadarChart({ metrics }: SkillRadarChartProps) {
         role="img"
         aria-label="Biểu đồ Radar 6 kỹ năng ngoại ngữ"
       >
-        {/* Concentric hexagons */}
+        {/* Concentric hexagons (Dark grid lines) */}
         {levels.map((lvl) => {
           const ringPoints = items
             .map((_, idx) => {
@@ -64,7 +64,7 @@ export function SkillRadarChart({ metrics }: SkillRadarChartProps) {
               key={lvl}
               points={ringPoints}
               fill="none"
-              stroke="#e2e8f0"
+              stroke="#1e293b"
               strokeWidth="1"
               strokeDasharray={lvl === 100 ? "none" : "3 3"}
             />
@@ -81,8 +81,9 @@ export function SkillRadarChart({ metrics }: SkillRadarChartProps) {
               y1={center}
               x2={end.x}
               y2={end.y}
-              stroke="#e2e8f0"
+              stroke="#334155"
               strokeWidth="1"
+              strokeDasharray="2 2"
             />
           );
         })}
@@ -90,40 +91,40 @@ export function SkillRadarChart({ metrics }: SkillRadarChartProps) {
         {/* Active Skill Polygon */}
         <polygon
           points={dataPolygonPoints}
-          fill="rgba(79, 70, 229, 0.22)"
-          stroke="#4f46e5"
-          strokeWidth="2.5"
+          fill="rgba(15, 118, 110, 0.2)"
+          stroke="#0F766E"
+          strokeWidth="2"
         />
 
         {/* Data vertices and labels */}
         {items.map((m, idx) => {
           const pt = getCoordinates(idx, m.score);
-          const labelPt = getCoordinates(idx, 126);
+          const labelPt = getCoordinates(idx, 122);
           return (
             <g key={m.skill}>
               <circle
                 cx={pt.x}
                 cy={pt.y}
-                r="4.5"
-                fill="#4f46e5"
+                r="4"
+                fill="#0F766E"
                 stroke="#ffffff"
                 strokeWidth="2"
               />
               <text
                 x={labelPt.x}
-                y={labelPt.y - 5}
+                y={labelPt.y - 4}
                 textAnchor="middle"
-                className="fill-slate-700 text-[11px] font-bold"
+                className="fill-slate-600 dark:fill-slate-300 text-[11px] font-semibold"
               >
                 {m.label_vi}
               </text>
               <text
                 x={labelPt.x}
-                y={labelPt.y + 9}
+                y={labelPt.y + 10}
                 textAnchor="middle"
-                className="fill-indigo-600 text-[11px] font-extrabold"
+                className="fill-[#0F766E] dark:fill-teal-400 text-[11px] font-extrabold"
               >
-                {Math.round(m.score)}/100
+                {Math.round(m.score)}
               </text>
             </g>
           );
